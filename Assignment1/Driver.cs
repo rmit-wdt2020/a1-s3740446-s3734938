@@ -35,7 +35,7 @@ namespace HelloWorldApplication
         {
             while(customerLoggedIn)
             {
-                Console.WriteLine("Choose an option:");
+                Console.WriteLine("\nChoose an option:");
                 Console.WriteLine("1) Withdraw money");
                 Console.WriteLine("2) Deposit money");
                 Console.WriteLine("3) Transfer money");
