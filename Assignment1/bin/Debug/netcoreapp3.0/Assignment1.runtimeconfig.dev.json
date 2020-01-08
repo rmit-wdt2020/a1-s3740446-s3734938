@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\heras\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\heras\\.nuget\\packages"
+    ]
+  }
+}
