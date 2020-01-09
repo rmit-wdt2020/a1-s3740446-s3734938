@@ -35,7 +35,7 @@ namespace HelloWorldApplication
 
                 while (read.Read())
                  {
-                     hash = (string) read["passwordhash"];
+                     hash = read.GetString("passwordhash");
                  }
                 
                 read.Close();
