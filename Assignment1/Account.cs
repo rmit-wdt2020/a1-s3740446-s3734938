@@ -12,24 +12,27 @@ namespace HelloWorldApplication
         private int accountNumber;
         private Type accountType;
         private Customer customer;      
-        private double balance;
+        private decimal balance;
 
         public int AccountNumber
         {
             get { return accountNumber; }
+            set { accountNumber = value; }
         }
 
         public Type AccountType
         {
             get { return accountType; }
+            set { accountType = value; }
         }
 
         public Customer Customer
         {
             get { return customer; }
+            set { customer = value; }
         }
 
-        public double Balance
+        public decimal Balance
         {
             get { return balance; }
             set { balance = value; }
@@ -38,6 +41,27 @@ namespace HelloWorldApplication
 
         public Account()
         {
+        }
+
+        public void withdraw(decimal amount)
+        {
+            if(balance >= amount ) 
+            {
+                balance = balance - amount;
+                DatabaseAccess.Instance.updateBalance(balance,this.accountNumber);
+                Console.WriteLine(balance);
+            }
+            else 
+            {
+                Console.WriteLine("Insufficient funds");
+            }
+        }
+
+        public void deposit(decimal amount)
+        {
+            balance = balance + amount;
+            DatabaseAccess.Instance.updateBalance(balance,this.accountNumber);
+            Console.WriteLine(balance);
         }
     }
 }
