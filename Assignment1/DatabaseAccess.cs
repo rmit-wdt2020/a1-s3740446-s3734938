@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Collections.Generic;
 
-namespace HelloWorldApplication
+namespace BankingApplication
 {
     public class DatabaseAccess
     {    

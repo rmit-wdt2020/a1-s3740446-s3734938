@@ -1,6 +1,6 @@
 using System;
 
-namespace HelloWorldApplication
+namespace BankingApplication
 {
     class MainClass
     {

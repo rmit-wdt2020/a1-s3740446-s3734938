@@ -2,7 +2,7 @@
 using SimpleHashing;
 using Microsoft.Data.SqlClient;
 
-namespace HelloWorldApplication
+namespace BankingApplication
 {
     public class AuthRepository
     {
