@@ -37,14 +37,14 @@ namespace BankingApplication
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
             List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
-            
-            //foreach(Customer c in tmpList)
-            //{
-            //    Console.WriteLine(c.Name);
-            //    Console.WriteLine(c.Accounts[0].AccountNumber);
-            //}
-            Console.WriteLine(tmpList[0].Accounts[1].AccountNumber);
-            Console.WriteLine(tmpList[0].Accounts[0].Transactions[0].TransactionTimeUtc);
+
+            foreach (Customer c in tmpList)
+            {
+                foreach(Account a in c.Accounts)
+                {
+                    a.InitTransaction();
+                }
+            }
 
 
         }
