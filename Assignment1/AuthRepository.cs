@@ -2,7 +2,7 @@
 using SimpleHashing;
 using Microsoft.Data.SqlClient;
 
-namespace HelloWorldApplication
+namespace BankingApplication
 {
     public class AuthRepository
     {
@@ -10,11 +10,9 @@ namespace HelloWorldApplication
         {
         }
 
-        public bool login(string loginId, string password)
+        public bool login(string hash, string password)
         {
             bool userValidated = false;
-            
-            string hash = DatabaseAccess.Instance.getPasswordHash(loginId); 
             
             if(hash != null && hash!="")
             {
@@ -23,5 +21,6 @@ namespace HelloWorldApplication
 
             return userValidated;
         }
+        
     }
 }

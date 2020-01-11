@@ -1,5 +1,5 @@
 ﻿using System;
-namespace HelloWorldApplication
+namespace BankingApplication
 {
     public class Transaction
     {
