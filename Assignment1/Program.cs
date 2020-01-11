@@ -8,7 +8,11 @@ namespace BankingApplication
 
         public static async Task Main(string[] args)
         {
-            await DatabaseAccess.Instance.GetJson();
+            //Check for populated database
+            if (DatabaseAccess.Instance.DbChk() == 1)
+            {
+                await DatabaseAccess.Instance.GetJson();
+            }
             //Driver driver = new Driver();
             //driver.performLogin();
         }

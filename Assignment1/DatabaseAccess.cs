@@ -29,10 +29,47 @@ namespace BankingApplication
         }  
         SqlConnection conn = new SqlConnection ("server=wdt2020.australiasoutheast.cloudapp.azure.com;uid=s3740446;database=s3740446;pwd=abc123;");
         SqlCommand query;
-        SqlDataReader read; 
+        SqlDataReader read;
+        
+        public int DbChk()
+        {
+            SqlCommand cmd = new SqlCommand("dbo.CheckDb", conn);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            //Output Parameter
+            cmd.Parameters.Add("@bool", SqlDbType.Bit).Direction = ParameterDirection.Output;
+
+            try
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                int chkresponse = Convert.ToInt32(cmd.Parameters["@bool"].Value);
+                return chkresponse;
+            }
+                catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+                return 3;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+                return 3;
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    conn.Close();
+
+                }
+            }
+        }
+        
 
         public async Task GetJson()
         {
+            Console.WriteLine("Getting Json");
             var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
@@ -45,6 +82,12 @@ namespace BankingApplication
                     a.InitTransaction();
                 }
             }
+
+            SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
+            LoginCmd.CommandType = CommandType.StoredProcedure;
+
+            SqlParameter jsonparam = new SqlParameter("@json", ljson);
+            LoginCmd.Parameters.Add(jsonparam);
 
             try
             {
@@ -81,6 +124,7 @@ namespace BankingApplication
                         }
                     }
                 }
+                LoginCmd.ExecuteNonQuery();
             }
             catch (SqlException se)
             {
