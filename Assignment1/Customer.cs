@@ -42,11 +42,11 @@ namespace BankingApplication
             set { postCode = value; }
         }
 
-        //  public List<Account> Accounts
-        // {
-        //     get { return accounts; }
-        //     set { accounts.Add((Account) value); }
-        // }
+        public List<Account> Accounts
+        {
+            get { return accounts; }
+            set { }
+        }
 
         public Customer()
         {

@@ -3,11 +3,15 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace BankingApplication
 {
     public class DatabaseAccess
-    {    
+    {
+        static readonly HttpClient Client = new HttpClient();
         private DatabaseAccess()  
         {  
         }  
@@ -26,6 +30,24 @@ namespace BankingApplication
         SqlConnection conn = new SqlConnection ("server=wdt2020.australiasoutheast.cloudapp.azure.com;uid=s3734938;database=s3734938;pwd=abc123;");
         SqlCommand query;
         SqlDataReader read; 
+
+        public async Task GetJson()
+        {
+            var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
+            var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
+
+            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
+            
+            //foreach(Customer c in tmpList)
+            //{
+            //    Console.WriteLine(c.Name);
+            //    Console.WriteLine(c.Accounts[0].AccountNumber);
+            //}
+            Console.WriteLine(tmpList[0].Accounts[1].AccountNumber);
+            Console.WriteLine(tmpList[0].Accounts[0].Transactions[0].TransactionTimeUtc);
+
+
+        }
 
         public void updateBalance(decimal amount, int accountNumber)
                 {
@@ -163,10 +185,10 @@ namespace BankingApplication
                         Balance = balance
                     };
                     if(accountType == 'S'){
-                        account.AccountType = Type.Savings;
+                        //account.AccountType = Type.Savings;
                     }
                     else{
-                        account.AccountType = Type.Checking;
+                        //account.AccountType = Type.Checking;
                     }
                     accounts.Add(account);
                 }
