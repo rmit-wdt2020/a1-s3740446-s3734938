@@ -13,7 +13,7 @@ namespace BankingApplication
     {
         private int accountNumber;
         private char accountType;
-        private Customer customer;      
+        private string customerId;      
         private decimal balance;
         private List<Transaction> transactions = new List<Transaction>();
 
@@ -29,10 +29,10 @@ namespace BankingApplication
             set { accountType = value; }
         }
 
-        public Customer Customer
+        public string CustomerId
         {
-            get { return customer; }
-            set { customer = value; }
+            get { return customerId; }
+            set { customerId = value; }
         }
 
         public decimal Balance

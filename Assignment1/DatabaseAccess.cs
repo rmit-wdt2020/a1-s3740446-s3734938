@@ -27,7 +27,7 @@ namespace BankingApplication
                 return instance;  
             }  
         }  
-        SqlConnection conn = new SqlConnection ("server=wdt2020.australiasoutheast.cloudapp.azure.com;uid=s3734938;database=s3734938;pwd=abc123;");
+        SqlConnection conn = new SqlConnection ("server=wdt2020.australiasoutheast.cloudapp.azure.com;uid=s3740446;database=s3740446;pwd=abc123;");
         SqlCommand query;
         SqlDataReader read; 
 
@@ -46,6 +46,58 @@ namespace BankingApplication
                 }
             }
 
+            try
+            {
+                conn.Open();
+                foreach (Customer c in tmpList)
+                {
+                    SqlCommand CustCmd = new SqlCommand("INSERT INTO CUSTOMER (CustomerID, Name, Address, City, Postcode)" +
+                                                        " VALUES(@CustomerID, @Name, @Address, @City, @Postcode )", conn);
+                    CustCmd.Parameters.AddWithValue("@CustomerID", c.CustomerId);
+                    CustCmd.Parameters.AddWithValue("@Name", c.Name);
+                    CustCmd.Parameters.AddWithValue("@Address", c.Address);
+                    CustCmd.Parameters.AddWithValue("@City", c.City);
+                    CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
+                    CustCmd.ExecuteNonQuery();
+                    foreach (Account a in c.Accounts)
+                    {
+                        SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
+                                                           " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
+                        AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                        AccCmd.Parameters.AddWithValue("@AccountType", a.AccountType);
+                        AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
+                        AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
+                        AccCmd.ExecuteNonQuery();
+                        foreach(Transaction t in a.Transactions)
+                        {
+                            SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
+                                                                " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
+                            TranCmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
+                            TranCmd.Parameters.AddWithValue("@AccountNumber", t.AccountNumber);
+                            TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", t.DestinationAccountNumber);
+                            TranCmd.Parameters.AddWithValue("@Amount", t.Amount);
+                            TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
+                            TranCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    conn.Close();
+
+                }
+            }
 
         }
 
