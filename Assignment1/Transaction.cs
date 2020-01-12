@@ -53,21 +53,6 @@ namespace BankingApplication
             set { transactionTimeUtc = value; }
 
         }
-
-        public string TransactionTimeUtcS
-        {
-            set { transactionTimeUtc = DateTime.Parse(value); }
-        }
-
-        //public Transaction(string transactionTimeUtc )
-        //{
-        //    this.TransactionTimeUtc = DateTime.Parse(transactionTimeUtc);
-        //}
-
-        //public Transaction()
-        //{
-
-        //}
     }
 }
 

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace BankingApplication
 {
@@ -80,8 +81,14 @@ namespace BankingApplication
             var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
-            JsonSerializer
-            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
+            //Variable for setting datetime format for reading json
+            var format = "dd/MM/yyyy hh:mm:ss tt";
+            var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
+
+            //Deserialize json into list (Referenced from Web Development Tutorial 2 but with added date time converter)
+            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson, dateTimeConverter);
+
+            Console.WriteLine(tmpList[0].Accounts[0].Transactions[0].TransactionTimeUtc);
 
             SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
             LoginCmd.CommandType = CommandType.StoredProcedure;
