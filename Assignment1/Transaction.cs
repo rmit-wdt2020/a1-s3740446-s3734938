@@ -9,7 +9,7 @@ namespace BankingApplication
         private int destinationAccountNumber;
         private decimal amount;
         private string comment;
-        private DateTime transactionTimeUtc; //check string or datetime
+        private DateTime transactionTimeUtc; 
 
         public int TransactionId
         {
@@ -51,21 +51,21 @@ namespace BankingApplication
         {
             get { return transactionTimeUtc; }
             set { transactionTimeUtc = value; }
+
         }
 
         public Transaction(string transactionTimeUtc )
         {
             this.TransactionTimeUtc = DateTime.Parse(transactionTimeUtc);
         }
+
+        public Transaction( )
+        {
+
+        }
     }
 }
 
 
 
-    //TransactionID int identity not null,
-    //TransactionType char not null,
-    //AccountNumber int not null,
-    //DestinationAccountNumber int null,
-    //Amount money not null,
-    //Comment nvarchar(255) null,
-    //TransactionTimeUtc datetime2 not null,
+    

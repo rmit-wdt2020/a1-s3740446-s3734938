@@ -5,7 +5,6 @@ namespace BankingApplication
 {
     class MainClass
     {
-
         public static async Task Main(string[] args)
         {
             //Check for populated database

@@ -66,10 +66,3 @@ namespace BankingApplication
         }
     }
 }
-
-    //CustomerID int not null,
-    //Name nvarchar(50) not null,
-    //Address nvarchar(50) null,
-    //City nvarchar(40) null,
-    //PostCode nvarchar(4) null,
-    //constraint PK_Customer primary key(CustomerID)

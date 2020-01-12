@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -21,15 +22,21 @@ namespace BankingApplication
             get  
             {  
                 if (instance == null)  
-                {  
+                {
                     instance = new DatabaseAccess();  
                 }  
                 return instance;  
             }  
+
+        } 
+
+        private static IConfigurationRoot Configuration { get; } =
+            new ConfigurationBuilder().AddJsonFile("appsettings.json").Build(); 
+
+        private static string ConnectionString { get; } = Configuration["ConnectionString"];
+        private static SqlConnection conn = new SqlConnection (ConnectionString);
+        private SqlDataReader read; 
         }  
-        SqlConnection conn = new SqlConnection ("server=wdt2020.australiasoutheast.cloudapp.azure.com;uid=s3740446;database=s3740446;pwd=abc123;");
-        SqlCommand query;
-        SqlDataReader read;
         
         public int DbChk()
         {
@@ -143,25 +150,66 @@ namespace BankingApplication
                     {
                         conn.Open();
 
-                        // 1. declare command object with parameter
                         SqlCommand cmd = new SqlCommand("update account set balance = @balance where accountnumber = @accountNumber", conn);
 
                         cmd.Parameters.AddWithValue("@balance",amount);
                         cmd.Parameters.AddWithValue("@accountNumber",accountNumber);
 
-                        // get data stream
                         int update = cmd.ExecuteNonQuery();
 
                     }
+                    catch (SqlException se)
+                    {
+                        Console.WriteLine("SQL Exception: {0}", se.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception: {0}", e.Message);
+                    }
                     finally
                     {
-                        // close reader
                         if (read != null)
                         {
                             read.Close();
                         }
 
-                        // close connection
+                        if (conn != null)
+                        {
+                            conn.Close();
+                        }
+                    }
+                }
+
+        public void insertTransaction(Transaction t)
+                {
+                    try
+                    {
+                        conn.Open();
+
+                        SqlCommand cmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
+                                                                " VALUES (@TransactionType, @AccountNumber, case when @DestinationAccountNumber = 0 then null else @DestinationAccountNumber end, @Amount, @TransactionTimeUtc)", conn);
+                        cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
+                        cmd.Parameters.AddWithValue("@AccountNumber", t.AccountNumber);
+                        cmd.Parameters.AddWithValue("@DestinationAccountNumber", t.DestinationAccountNumber);
+                        cmd.Parameters.AddWithValue("@Amount", t.Amount);
+                        cmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
+                        cmd.ExecuteNonQuery();
+                    }
+                    catch (SqlException se)
+                    {
+                        Console.WriteLine("SQL Exception: {0}", se.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception: {0}", e.Message);
+                    }
+                    finally
+                    {
+                        if (read != null)
+                        {
+                            read.Close();
+                        }
+
                         if (conn != null)
                         {
                             conn.Close();
@@ -192,15 +240,21 @@ namespace BankingApplication
                             postcode = read.GetString(4);
                         }
                     }
+                    catch (SqlException se)
+                    {
+                        Console.WriteLine("SQL Exception: {0}", se.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Exception: {0}", e.Message);
+                    }
                     finally
                     {
-                        // close reader
                         if (read != null)
                         {
                             read.Close();
                         }
 
-                        // close connection
                         if (conn != null)
                         {
                             conn.Close();
@@ -216,32 +270,33 @@ namespace BankingApplication
             {
                 conn.Open();
 
-                // 1. declare command object with parameter
                 SqlCommand cmd = new SqlCommand("select * from login where loginid = @loginid", conn);
 
                 cmd.Parameters.AddWithValue("@loginid",loginId);
 
-                // get data stream
                 read = cmd.ExecuteReader();
 
-                // write each record
                 while(read.Read())
                 {
-                    // Console.WriteLine("{0}", 
-                    //     read["passwordhash"]);
                     customerId = read.GetInt32(1);
                     passwordhash = read.GetString(2);
                 }
             }
+            catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
             finally
             {
-                // close reader
                 if (read != null)
                 {
                     read.Close();
                 }
 
-                // close connection
                 if (conn != null)
                 {
                     conn.Close();
@@ -259,8 +314,11 @@ namespace BankingApplication
             try
             {
                 conn.Open();
-                query = new SqlCommand("select * from account where customerid = '" + customerId + "'", conn);
-                read = query.ExecuteReader();
+                SqlCommand cmd = new SqlCommand("select * from account where customerid = @customerid", conn);
+
+                cmd.Parameters.AddWithValue("@customerid",customerId);
+
+                read = cmd.ExecuteReader();
 
                 while (read.Read())
                 {
@@ -270,19 +328,11 @@ namespace BankingApplication
 
                     Account account = new Account() {
                         AccountNumber = accountNumber,
-                        Balance = balance
+                        Balance = balance,
+                        AccountType = accountType
                     };
-                    if(accountType == 'S'){
-                        //account.AccountType = Type.Savings;
-                    }
-                    else{
-                        //account.AccountType = Type.Checking;
-                    }
                     accounts.Add(account);
                 }
-
-                read.Close();
-
 
             }
             catch (SqlException se)
@@ -295,16 +345,94 @@ namespace BankingApplication
             }
             finally
             {
-                if (conn.State == ConnectionState.Open)
+                if (read != null)
+                {
+                    read.Close();
+                }
+
+                if (conn != null)
                 {
                     conn.Close();
-
                 }
             }
             
             return accounts;
         }
-        
-      
+
+        public List<Transaction> getTransactionData(int accountId)
+        {       
+            int transactionId;
+            char transactionType;
+            int accountNumber;
+            int destinationAccountNumber;
+            decimal amount;
+            string comment;
+            DateTime transactionTimeUtc; 
+            List<Transaction> transactions = new List<Transaction>(); 
+            try
+            {
+               conn.Open();
+                SqlCommand cmd = new SqlCommand("select * from [transaction] where accountnumber = @accountId", conn);
+
+                cmd.Parameters.AddWithValue("@accountid",accountId);
+
+                read = cmd.ExecuteReader();
+
+                while (read.Read())
+                {
+                    transactionId = read.GetInt32("transactionId");
+                    accountNumber = read.GetInt32("accountNumber");
+                    
+                    if (!read.IsDBNull(3))
+                        destinationAccountNumber = read.GetInt32("destinationAccountNumber");
+                    else
+                        destinationAccountNumber = 0;
+
+                    transactionType = read.GetString(1)[0];
+                    amount = read.GetDecimal(4);
+                    
+                    if (!read.IsDBNull(5))
+                        comment = read.GetString(5);
+                    else
+                        comment = null;
+
+                    transactionTimeUtc = read.GetDateTime(6);
+
+                    Transaction transaction = new Transaction(){
+                        TransactionId = transactionId,
+                        TransactionType = transactionType,
+                        AccountNumber = accountNumber,
+                        Amount = amount,
+                        Comment = comment,
+                        DestinationAccountNumber = destinationAccountNumber,
+                        TransactionTimeUtc = transactionTimeUtc
+                    };
+                    
+                    transactions.Add(transaction);
+                }
+            }
+            catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
+            finally
+            {
+                if (read != null)
+                {
+                    read.Close();
+                }
+
+                if (conn != null)
+                {
+                    conn.Close();
+                }
+            }
+            
+            return transactions;
+        }
     }
 }
