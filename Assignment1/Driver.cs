@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace BankingApplication
 {
@@ -27,20 +28,24 @@ namespace BankingApplication
             var accounts = DatabaseAccess.Instance.getAccountData(customerId);
 
             foreach (var item in accounts) {
+                
+                var transactions = DatabaseAccess.Instance.getTransactionData(item.AccountNumber);
+                foreach (var transaction in transactions) {
+                        item.Transactions.Add(transaction);
+                    }
                 customer.accounts.Add(item);
             }
         }
 
         public void performLogin()
-        {
+        {   
+            Thread.Sleep(3000);
             Console.Clear();
             Console.WriteLine("Enter your Login ID");
-           string loginID = Console.ReadLine();
-        //    string loginID = "12345678";
+            string loginID = Console.ReadLine(); 
             Console.WriteLine("Enter your password");
             string passWord = Console.ReadLine();
-        //    string passWord = "abc123";
-            
+        
             var result = DatabaseAccess.Instance.getLoginDetails(loginID);
             
             if (auth.login(result.Item2, passWord))
@@ -57,76 +62,87 @@ namespace BankingApplication
             }
         }
 
-         public void withdraw(){
+        public void withdraw()
+        {
              Console.WriteLine("Enter the account number");
              int accountNumber = 0;
-             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) {
-                Console.WriteLine("You entered invalid data.Please try again");
-                return;
-            }
-             Console.WriteLine("Enter the amount you want to withdraw");
-             decimal amount = 0;
-            if(!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0) {
-                Console.WriteLine("You entered invalid data.Please try again");
-                return;
-            }
-            var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
-            if(account == null) {
-                    Console.WriteLine("Account number does not exist.Please try again");
-                    return;
-                }
-            try
-            {
-                account.withdraw(amount);
-            }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-            }
-         }
-
-         public bool checkIfAccountExists(int accountNumber){
-            var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
-            if(account == null) {
-                return false;
-            }
-            else{
-                return true;
-            }
-         }
-
-         public void deposit(){
-             Console.WriteLine("Enter the account number");
-             int accountNumber = 0;
+             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
+             {
+                throw new InvalidDataException("Please enter a valid number");
+             }
              
-            if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) {
-                Console.WriteLine("You entered an invalid account number.Please try again");
-                return;
-            }
+            var account = checkIfAccountExists(accountNumber);
 
+            Console.WriteLine("Enter the amount you want to withdraw");
+            decimal amount = 0;
+            
+            if(!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0 ) 
+            {
+                throw new InvalidDataException("Please enter a valid amount greater than 0");
+            }
+            
+            account.withdraw(amount);
+            Console.WriteLine("Withdraw successfull");
+        }
+
+        public void checkMyStatements()
+        {
+            Console.WriteLine("Enter the account number");
+            int accountNumber = 0;
+            if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
+            {
+                throw new InvalidDataException("Please enter a valid number");
+            }
+             
+            var account = checkIfAccountExists(accountNumber);
+           
+            Console.WriteLine("Your balance is "+account.Balance);
+            Console.WriteLine("\nList of Transactions: ");
+            for(int i = account.Transactions.Count -1;i >= account.Transactions.Count -4 && i>=0;i--)
+            {
+                Transaction t = account.Transactions[i];
+                string display = "TransactionType: " + t.TransactionType + " AccountNumber: " + t.AccountNumber;
+                if(t.DestinationAccountNumber != 0)
+                    display = display + " Destination Account Number: " + t.DestinationAccountNumber;
+                display = display + " Amount: " + t.Amount + " Transaction Time: " + ((DateTime) t.TransactionTimeUtc).ToLocalTime();
+                if(t.Comment != null)
+                    display = display + " Comment: " + t.Comment;
+                Console.WriteLine(display);
+            }
+        }
+
+        public void deposit()
+        {
+             Console.WriteLine("Enter the account number");
+             int accountNumber = 0;
+             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
+                {
+                    throw new InvalidDataException("Please enter a valid number");
+                }
+            
+            var account = checkIfAccountExists(accountNumber);
+
+            Console.WriteLine("Enter the amount you want to deposit");
+            decimal amount = 0;
+            
+            if(!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0) 
+            {
+                throw new InvalidDataException("Please enter a valid amount greater than 0");
+            }
+            
+            account.deposit(amount);
+            Console.WriteLine("Deposit successfull");
+        }
+
+        public Account checkIfAccountExists(int accountNumber)
+        {
             var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
-            if(account == null) {
-                Console.WriteLine("Account number does not exist.Please try again");
-                return;
-            }
-
-             Console.WriteLine("Enter the amount you want to deposit");
-             decimal amount = 0;
-            if(!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0) {
-                Console.WriteLine("You entered invalid data.Please try again");
-                return;
-            }
-           
-           
-            try
+            if(account == null) 
             {
-                account.deposit(amount);
+                throw new Exception("Account does not exist.");
             }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-            }
-         }
+            return account;
+        }
 
         public void getCustomerChoice()
         {
@@ -140,40 +156,55 @@ namespace BankingApplication
                 Console.WriteLine("5) Logout");
                 Console.WriteLine("6) Exit");
                 Console.Write("\r\nSelect an option: ");
-    
+        
                 string option = Console.ReadLine();
-               //  string option = "2";
+                
                 switch (option)
                 {
                     case "1":
-                        Console.WriteLine("Withdraw");
+                    try
+                    {
                         withdraw();
-                        break;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    break;
                     case "2":
-                        Console.WriteLine("Deposit");
+                    try
+                    {
                         deposit();
-                        break;
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    break;
                     case "3":
-                    Console.WriteLine("Transfer");
-                        break;
+                    break;
                     case "4":
-                    Console.WriteLine("My statements");
-                        break;
+                    try
+                    {
+                        checkMyStatements();
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    break;
                     case "5":
-                    Console.WriteLine("Logout");
-                        performLogin();
-                        break;
+                    performLogin();
+                    break;
                     case "6":
-                    Console.WriteLine("Exit");
-                        Environment.Exit(0);
-                        break;
+                    Environment.Exit(0);
+                    break;
                     default:
-                        Console.WriteLine("Enter a number between 1 and 6");
-                        break;
-                
+                    Console.WriteLine("Please enter a number between 1 and 6");
+                    break;
+                        
                 }
-            }
-            
+            }       
         }    
     }
 }
