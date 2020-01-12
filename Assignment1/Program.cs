@@ -1,14 +1,20 @@
 using System;
+using System.Threading.Tasks;
 
 namespace BankingApplication
 {
     class MainClass
     {
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Driver driver = new Driver();
-            driver.performLogin();
+            //Check for populated database
+            if (DatabaseAccess.Instance.DbChk() == 1)
+            {
+                await DatabaseAccess.Instance.GetJson();
+            }
+            //Driver driver = new Driver();
+            //driver.performLogin();
         }
 
     }

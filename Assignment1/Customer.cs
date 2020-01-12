@@ -5,7 +5,7 @@ namespace BankingApplication
 {
     public class Customer
     {
-        private int customerId;
+        private int customerId = 0;
         private string name;
         private string address;
         private string city;
@@ -21,32 +21,45 @@ namespace BankingApplication
         public string Name
         {
             get { return name; }
-            set { name = value; }
+            set { if(value == null)
+                    name = "";   
+                  else
+                    name = value; }
         }
 
         public string Address
         {
             get { return address; }
-            set { address = value; }
+            set {
+                if (value == null)
+                    address = "";
+                else
+                    address = value; }
         }
 
         public string City
         {
             get { return city; }
-            set { city = value; }
+            set { if (value == null)
+                    city = "";
+                else
+                    city = value; }
         }
 
         public string PostCode
         {
             get { return postCode; }
-            set { postCode = value; }
+            set { if (value == null)
+                    postCode = "";
+                  else
+                    postCode = value; }
         }
 
-        //  public List<Account> Accounts
-        // {
-        //     get { return accounts; }
-        //     set { accounts.Add((Account) value); }
-        // }
+        public List<Account> Accounts
+        {
+            get { return accounts; }
+            set { }
+        }
 
         public Customer()
         {

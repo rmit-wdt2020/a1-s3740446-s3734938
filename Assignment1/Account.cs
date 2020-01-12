@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace BankingApplication
 {
-    public enum Type
-    {
-        Savings,
-        Checking
-    }
+    //public enum Type
+    //{
+    //    Savings,
+    //    Checking
+    //}
 
     public class Account
     {
         private int accountNumber;
-        private Type accountType;
-        private Customer customer;      
+        private char accountType;
+        private string customerId;      
         private decimal balance;
+        private List<Transaction> transactions = new List<Transaction>();
 
         public int AccountNumber
         {
@@ -20,16 +23,16 @@ namespace BankingApplication
             set { accountNumber = value; }
         }
 
-        public Type AccountType
+        public char AccountType
         {
             get { return accountType; }
             set { accountType = value; }
         }
 
-        public Customer Customer
+        public string CustomerId
         {
-            get { return customer; }
-            set { customer = value; }
+            get { return customerId; }
+            set { customerId = value; }
         }
 
         public decimal Balance
@@ -37,6 +40,12 @@ namespace BankingApplication
             get { return balance; }
             set { balance = value; }
 
+        }
+
+        public List<Transaction> Transactions
+        {
+            get { return transactions; }
+            set { }
         }
 
         public Account()
