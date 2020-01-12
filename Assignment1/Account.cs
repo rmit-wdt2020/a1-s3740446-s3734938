@@ -43,11 +43,6 @@ namespace BankingApplication
             set { }
         }
 
-        public List<Transaction> Transactions
-        {
-            get { return transactions; }
-            set { }
-        }
 
         public Account()
         {

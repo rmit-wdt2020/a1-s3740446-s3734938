@@ -36,7 +36,7 @@ namespace BankingApplication
         private static string ConnectionString { get; } = Configuration["ConnectionString"];
         private static SqlConnection conn = new SqlConnection (ConnectionString);
         private SqlDataReader read; 
-        }  
+          
         
         public int DbChk()
         {
@@ -80,6 +80,7 @@ namespace BankingApplication
             var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
+            JsonSerializer
             List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
 
             SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
