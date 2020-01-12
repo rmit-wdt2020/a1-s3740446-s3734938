@@ -75,17 +75,9 @@ namespace BankingApplication
 
             List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
 
-            foreach (Customer c in tmpList)
-            {
-                foreach(Account a in c.Accounts)
-                {
-                    a.InitTransaction();
-                }
-            }
-
             SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
             LoginCmd.CommandType = CommandType.StoredProcedure;
-
+            
             SqlParameter jsonparam = new SqlParameter("@json", ljson);
             LoginCmd.Parameters.Add(jsonparam);
 
@@ -115,10 +107,10 @@ namespace BankingApplication
                         {
                             SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
                                                                 " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
-                            TranCmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
-                            TranCmd.Parameters.AddWithValue("@AccountNumber", t.AccountNumber);
-                            TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", t.DestinationAccountNumber);
-                            TranCmd.Parameters.AddWithValue("@Amount", t.Amount);
+                            TranCmd.Parameters.AddWithValue("@TransactionType", "D");
+                            TranCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                            TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", a.AccountNumber);
+                            TranCmd.Parameters.AddWithValue("@Amount", a.Balance);
                             TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
                             TranCmd.ExecuteNonQuery();
                         }

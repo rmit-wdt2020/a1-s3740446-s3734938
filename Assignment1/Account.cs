@@ -52,15 +52,6 @@ namespace BankingApplication
         {
         }
 
-        public void InitTransaction()
-        {
-            Transactions[0].TransactionId = 1;
-            Transactions[0].TransactionType = 'D';
-            Transactions[0].Amount = Balance;
-            Transactions[0].AccountNumber = AccountNumber;
-            Transactions[0].DestinationAccountNumber = AccountNumber;
-        }
-
         public void withdraw(decimal amount)
         {
             if(balance >= amount ) 
