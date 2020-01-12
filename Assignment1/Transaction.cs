@@ -51,6 +51,7 @@ namespace BankingApplication
         {
             get { return transactionTimeUtc; }
             set { transactionTimeUtc = value; }
+
         }
 
         public Transaction(string transactionTimeUtc )
@@ -58,7 +59,7 @@ namespace BankingApplication
             this.TransactionTimeUtc = DateTime.Parse(transactionTimeUtc);
         }
 
-        public Transaction()
+        public Transaction( )
         {
 
         }

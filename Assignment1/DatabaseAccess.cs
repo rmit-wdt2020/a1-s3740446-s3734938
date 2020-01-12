@@ -4,11 +4,15 @@ using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
 
 namespace BankingApplication
 {
     public class DatabaseAccess
-    {    
+    {
+        static readonly HttpClient Client = new HttpClient();
         private DatabaseAccess()  
         {  
         }  
@@ -23,6 +27,7 @@ namespace BankingApplication
                 }  
                 return instance;  
             }  
+
         } 
 
         private static IConfigurationRoot Configuration { get; } =
@@ -31,6 +36,113 @@ namespace BankingApplication
         private static string ConnectionString { get; } = Configuration["ConnectionString"];
         private static SqlConnection conn = new SqlConnection (ConnectionString);
         private SqlDataReader read; 
+        }  
+        
+        public int DbChk()
+        {
+            SqlCommand cmd = new SqlCommand("dbo.CheckDb", conn);
+
+            cmd.CommandType = CommandType.StoredProcedure;
+            //Output Parameter
+            cmd.Parameters.Add("@bool", SqlDbType.Bit).Direction = ParameterDirection.Output;
+
+            try
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                int chkresponse = Convert.ToInt32(cmd.Parameters["@bool"].Value);
+                return chkresponse;
+            }
+                catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+                return 3;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+                return 3;
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    conn.Close();
+
+                }
+            }
+        }
+        
+
+        public async Task GetJson()
+        {
+            Console.WriteLine("Getting Json");
+            var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
+            var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
+
+            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson);
+
+            SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
+            LoginCmd.CommandType = CommandType.StoredProcedure;
+            
+            SqlParameter jsonparam = new SqlParameter("@json", ljson);
+            LoginCmd.Parameters.Add(jsonparam);
+
+            try
+            {
+                conn.Open();
+                foreach (Customer c in tmpList)
+                {
+                    SqlCommand CustCmd = new SqlCommand("INSERT INTO CUSTOMER (CustomerID, Name, Address, City, Postcode)" +
+                                                        " VALUES(@CustomerID, @Name, @Address, @City, @Postcode )", conn);
+                    CustCmd.Parameters.AddWithValue("@CustomerID", c.CustomerId);
+                    CustCmd.Parameters.AddWithValue("@Name", c.Name);
+                    CustCmd.Parameters.AddWithValue("@Address", c.Address);
+                    CustCmd.Parameters.AddWithValue("@City", c.City);
+                    CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
+                    CustCmd.ExecuteNonQuery();
+                    foreach (Account a in c.Accounts)
+                    {
+                        SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
+                                                           " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
+                        AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                        AccCmd.Parameters.AddWithValue("@AccountType", a.AccountType);
+                        AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
+                        AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
+                        AccCmd.ExecuteNonQuery();
+                        foreach(Transaction t in a.Transactions)
+                        {
+                            SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
+                                                                " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
+                            TranCmd.Parameters.AddWithValue("@TransactionType", "D");
+                            TranCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                            TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", a.AccountNumber);
+                            TranCmd.Parameters.AddWithValue("@Amount", a.Balance);
+                            TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
+                            TranCmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+                LoginCmd.ExecuteNonQuery();
+            }
+            catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
+            finally
+            {
+                if (conn.State == ConnectionState.Open)
+                {
+                    conn.Close();
+
+                }
+            }
+
+        }
 
         public void updateBalance(decimal amount, int accountNumber)
                 {
@@ -219,7 +331,6 @@ namespace BankingApplication
                         Balance = balance,
                         AccountType = accountType
                     };
-                    
                     accounts.Add(account);
                 }
 
