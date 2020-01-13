@@ -84,17 +84,22 @@ namespace BankingApplication
             //Variable for setting datetime format for reading json
             var format = "dd/MM/yyyy hh:mm:ss tt";
             var dateTimeConverter = new IsoDateTimeConverter { DateTimeFormat = format };
+            AccountConverter converter = new AccountConverter();
 
             //Deserialize json into list (Referenced from Web Development Tutorial 2 but with added date time converter)
-            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson, dateTimeConverter);
-
-            Console.WriteLine(tmpList[0].Accounts[0].Transactions[0].TransactionTimeUtc);
+            List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson, converter, dateTimeConverter);
 
             SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
             LoginCmd.CommandType = CommandType.StoredProcedure;
             
             SqlParameter jsonparam = new SqlParameter("@json", ljson);
             LoginCmd.Parameters.Add(jsonparam);
+
+            IAccount test = tmpList[0].Accounts[0];
+            IAccount testtwo = tmpList[0].Accounts[1];
+
+            Console.WriteLine(test.GetType().Name[0]);
+            Console.WriteLine(testtwo.GetType().Name[0]);
 
             try
             {
@@ -109,12 +114,12 @@ namespace BankingApplication
                     CustCmd.Parameters.AddWithValue("@City", c.City);
                     CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
                     CustCmd.ExecuteNonQuery();
-                    foreach (Account a in c.Accounts)
+                    foreach (IAccount a in c.Accounts)
                     {
                         SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
                                                            " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
                         AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
-                        AccCmd.Parameters.AddWithValue("@AccountType", a.AccountType);
+                        AccCmd.Parameters.AddWithValue("@AccountType", a.GetType().Name[0]);
                         AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
                         AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
                         AccCmd.ExecuteNonQuery();
@@ -313,18 +318,18 @@ namespace BankingApplication
             return (customerId,passwordhash);
         }
 
-        public List<Account> getAccountData(int customerId)
-        {       
+        public List<IAccount> getAccountData(int customerId)
+        {
             int accountNumber = 0;
             decimal balance = 0;
             char accountType = 'q';
-            List<Account> accounts = new List<Account>(); 
+            List<IAccount> accounts = new List<IAccount>();
             try
             {
                 conn.Open();
                 SqlCommand cmd = new SqlCommand("select * from account where customerid = @customerid", conn);
 
-                cmd.Parameters.AddWithValue("@customerid",customerId);
+                cmd.Parameters.AddWithValue("@customerid", customerId);
 
                 read = cmd.ExecuteReader();
 
@@ -334,11 +339,7 @@ namespace BankingApplication
                     accountType = read.GetString(1)[0];
                     balance = read.GetDecimal(3);
 
-                    Account account = new Account() {
-                        AccountNumber = accountNumber,
-                        Balance = balance,
-                        AccountType = accountType
-                    };
+                    var account = AccountFactory.CreateAccount(accountNumber, accountType, customerId, balance);
                     accounts.Add(account);
                 }
 

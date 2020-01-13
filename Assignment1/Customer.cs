@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace BankingApplication
@@ -10,7 +11,8 @@ namespace BankingApplication
         private string address;
         private string city;
         private string postCode;
-        public List<Account> accounts = new List<Account>(); 
+
+        public List<IAccount> accounts = new List<IAccount>(); 
 
         public int CustomerId   
         {
@@ -55,7 +57,7 @@ namespace BankingApplication
                     postCode = value; }
         }
 
-        public List<Account> Accounts
+        public List<IAccount> Accounts
         {
             get { return accounts; }
             set { }

@@ -64,14 +64,7 @@ namespace BankingApplication
 
         public void withdraw()
         {
-             Console.WriteLine("Enter the account number");
-             int accountNumber = 0;
-             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-             {
-                throw new InvalidDataException("Please enter a valid number");
-             }
-             
-            var account = checkIfAccountExists(accountNumber);
+            var account = CustomerAccountSelection();
 
             Console.WriteLine("Enter the amount you want to withdraw");
             decimal amount = 0;
@@ -85,17 +78,17 @@ namespace BankingApplication
             Console.WriteLine("Withdraw successfull");
         }
 
+        public void TransferMoney()
+        {
+            var account = CustomerAccountSelection();
+            Console.WriteLine("Your balance is " + account.Balance);
+
+        }
+
         public void checkMyStatements()
         {
-            Console.WriteLine("Enter the account number");
-            int accountNumber = 0;
-            if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-            {
-                throw new InvalidDataException("Please enter a valid number");
-            }
-             
-            var account = checkIfAccountExists(accountNumber);
-           
+            var account = CustomerAccountSelection();
+
             Console.WriteLine("Your balance is "+account.Balance);
             Console.WriteLine("\nList of Transactions: ");
             for(int i = account.Transactions.Count -1;i >= account.Transactions.Count -4 && i>=0;i--)
@@ -113,14 +106,7 @@ namespace BankingApplication
 
         public void deposit()
         {
-             Console.WriteLine("Enter the account number");
-             int accountNumber = 0;
-             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-                {
-                    throw new InvalidDataException("Please enter a valid number");
-                }
-            
-            var account = checkIfAccountExists(accountNumber);
+            var account = CustomerAccountSelection();
 
             Console.WriteLine("Enter the amount you want to deposit");
             decimal amount = 0;
@@ -134,7 +120,8 @@ namespace BankingApplication
             Console.WriteLine("Deposit successfull");
         }
 
-        public Account checkIfAccountExists(int accountNumber)
+        //Method needs to changing to find account outside of customer account
+        public IAccount checkIfAccountExists(int accountNumber)
         {
             var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
             if(account == null) 
@@ -142,6 +129,23 @@ namespace BankingApplication
                 throw new Exception("Account does not exist.");
             }
             return account;
+        }
+
+        public IAccount CustomerAccountSelection()
+        {
+            var count = 1;
+            var selection = 0;
+            foreach(var account in customer.Accounts)
+            {
+                Console.WriteLine(count + ": " +account.AccountNumber);
+                count++;
+            }
+            if (!int.TryParse(Console.ReadLine(), out selection) || selection < 1 || selection > customer.Accounts.Count)
+            {
+                throw new InvalidDataException("Please enter a valid number");
+            }
+
+            return customer.Accounts[selection - 1];
         }
 
         public void getCustomerChoice()
