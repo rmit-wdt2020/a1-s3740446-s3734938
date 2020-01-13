@@ -48,7 +48,7 @@ namespace BankingApplication
         {
         }
         
-        public void withdraw(decimal amount)
+        public void Withdraw(decimal amount)
         {
             decimal atmWithdrawFee = 0.10M;
 
@@ -69,17 +69,17 @@ namespace BankingApplication
                  balance = balance - atmWithdrawFee;
              }
              
-             DatabaseAccess.Instance.updateBalance(balance,this.accountNumber);
-             generateTransaction(amount,'W');
+             DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
+             GenerateTransaction(amount,'W');
         }
-        public void deposit(decimal amount)
+        public void Deposit(decimal amount)
         {
             balance = balance + amount;
-            DatabaseAccess.Instance.updateBalance(balance,this.accountNumber);
-            generateTransaction(amount,'D');
+            DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
+            GenerateTransaction(amount,'D');
         }
         
-        public void generateTransaction(decimal amount,char transactionType)
+        public void GenerateTransaction(decimal amount,char transactionType)
         {
             Transaction transaction = new Transaction(){
             TransactionType = transactionType,
@@ -89,7 +89,7 @@ namespace BankingApplication
             };
 
             transactions.Add(transaction);
-            DatabaseAccess.Instance.insertTransaction(transaction);
+            DatabaseAccess.Instance.InsertTransaction(transaction);
         }
 
     }
