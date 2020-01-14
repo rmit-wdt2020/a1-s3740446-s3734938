@@ -3,11 +3,10 @@ using System.Collections.Generic;
 
 namespace BankingApplication
 {
-    public class Account
+    public abstract class Account
     {
         private int accountNumber;
-        private char accountType;
-        private string customerId;      
+        private int customerId;      
         private decimal balance;
 
         private List<Transaction> transactions = new List<Transaction>();
@@ -19,13 +18,7 @@ namespace BankingApplication
             set { accountNumber = value; }
         }
 
-        public char AccountType
-        {
-            get { return accountType; }
-            set { accountType = value; }
-        }
-
-        public string CustomerId
+        public int CustomerId
         {
             get { return customerId; }
             set { customerId = value; }
@@ -43,35 +36,7 @@ namespace BankingApplication
             set { }
         }
 
-
-        public Account()
-        {
-        }
-        
-        public void Withdraw(decimal amount)
-        {
-            decimal atmWithdrawFee = 0.10M;
-
-            if(!(balance >= amount)) 
-            {
-               throw new Exception("Insufficient funds.");
-            }
-
-            if(!(balance - amount >= 200) && accountType == 'C') 
-            {
-               throw new Exception("The minimum balance for a checking account is A$200 ");
-            }
-            
-             balance = balance - amount;
-
-             if(transactions.Count >= 4)
-             {
-                 balance = balance - atmWithdrawFee;
-             }
-             
-             DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
-             GenerateTransaction(amount,'W');
-        }
+        public abstract void Withdraw(decimal amount, char type = 'W');
         public void Deposit(decimal amount)
         {
             balance = balance + amount;

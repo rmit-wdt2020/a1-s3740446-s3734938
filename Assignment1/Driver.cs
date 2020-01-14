@@ -196,7 +196,7 @@ namespace BankingApplication
             Console.WriteLine("Deposit successfull");
         }
 
-        public IAccount CustomerAccountSelection()
+        public Account CustomerAccountSelection()
         {
             var count = 1;
             var selection = 0;

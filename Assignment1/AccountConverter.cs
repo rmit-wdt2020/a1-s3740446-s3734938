@@ -13,7 +13,7 @@ namespace BankingApplication
         public override bool CanRead => true;
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(IAccount);
+            return objectType == typeof(Account);
         }
         public override void WriteJson(JsonWriter writer,
             object value, JsonSerializer serializer)

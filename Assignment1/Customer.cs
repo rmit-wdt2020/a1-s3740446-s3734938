@@ -12,7 +12,7 @@ namespace BankingApplication
         private string city;
         private string postCode;
 
-        public List<IAccount> accounts = new List<IAccount>(); 
+        public List<Account> accounts = new List<Account>(); 
 
         public int CustomerId   
         {
@@ -57,7 +57,7 @@ namespace BankingApplication
                     postCode = value; }
         }
 
-        public List<IAccount> Accounts
+        public List<Account> Accounts
         {
             get { return accounts; }
             set { }
