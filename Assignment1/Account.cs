@@ -39,7 +39,7 @@ namespace BankingApplication
             set { }
         }
 
-        public void Withdraw(decimal amount)
+        public void Withdraw(decimal amount, char transactionType = Transaction.WithdrawTransaction)
         {
 
             if (!(Balance -amount >= minimumBalance))
@@ -58,7 +58,7 @@ namespace BankingApplication
             }
 
             DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
-            GenerateTransaction(amount, Transaction.WithdrawTransaction);
+            GenerateTransaction(amount, transactionType);
             
         }
         public void Deposit(decimal amount)
