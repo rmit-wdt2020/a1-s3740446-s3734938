@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BankingApplication
 {
@@ -38,7 +39,28 @@ namespace BankingApplication
             set { }
         }
 
-        public abstract void Withdraw(decimal amount);
+        public void Withdraw(decimal amount)
+        {
+
+            if (!(Balance -amount >= minimumBalance))
+            {
+                throw new Exception("Insufficient funds.");
+            }
+            
+            Balance = Balance - amount;
+            
+            var filteredList =  Transactions.Where(t => t.TransactionType != Transaction.ServiceTransaction);
+            
+            if (filteredList.Count() >= NumberOfFreeTransactions + 1)
+            {
+                Balance = Balance - WithDrawServiceCharge;
+                GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
+            }
+
+            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
+            GenerateTransaction(amount, Transaction.WithdrawTransaction);
+            
+        }
         public void Deposit(decimal amount)
         {
             balance = balance + amount;
