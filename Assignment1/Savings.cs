@@ -1,30 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace BankingApplication
 {
     class Savings : Account
     {
-
-        public override void Withdraw(decimal amount, char type = 'W')
+        public Savings()
         {
-            decimal atmWithdrawFee = 0.10M;
+            minimumBalance = 0;
+        }
+        public override void Withdraw(decimal amount)
+        {
 
-            if (!(Balance >= amount))
+            if (!(Balance -amount >= minimumBalance))
             {
                 throw new Exception("Insufficient funds.");
             }
 
             Balance = Balance - amount;
-
-            if (Transactions.Count >= 4)
+            
+            var filteredList =  Transactions.Where(t => t.TransactionType != Transaction.ServiceTransaction);
+            
+            if (filteredList.Count() >= NumberOfFreeTransactions + 1)
             {
-                Balance = Balance - atmWithdrawFee;
+                Balance = Balance - WithDrawServiceCharge;
+                GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
             }
 
             DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
-            GenerateTransaction(amount, type);
+            GenerateTransaction(amount, Transaction.WithdrawTransaction);
+            
         }
     }
 }

@@ -5,13 +5,15 @@ namespace BankingApplication
 {
     public abstract class Account
     {
+        protected const int NumberOfFreeTransactions = 4;
+        protected const decimal WithDrawServiceCharge = 0.1M;
+        protected const decimal TransferServiceCharge = 0.2M;
+        protected decimal minimumBalance;
         private int accountNumber;
         private int customerId;      
         private decimal balance;
 
         private List<Transaction> transactions = new List<Transaction>();
-
-
         public int AccountNumber
         {
             get { return accountNumber; }
@@ -36,12 +38,12 @@ namespace BankingApplication
             set { }
         }
 
-        public abstract void Withdraw(decimal amount, char type = 'W');
+        public abstract void Withdraw(decimal amount);
         public void Deposit(decimal amount)
         {
             balance = balance + amount;
             DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
-            GenerateTransaction(amount,'D');
+            GenerateTransaction(amount, Transaction.DepositTransaction);
         }
         
         public void GenerateTransaction(decimal amount,char transactionType)
