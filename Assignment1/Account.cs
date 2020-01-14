@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BankingApplication
 {
     public abstract class Account
     {
+        protected const int NumberOfFreeTransactions = 4;
+        protected const decimal WithDrawServiceCharge = 0.1M;
+        protected const decimal TransferServiceCharge = 0.2M;
+        protected decimal minimumBalance;
         private int accountNumber;
         private int customerId;      
         private decimal balance;
 
         private List<Transaction> transactions = new List<Transaction>();
-
-
         public int AccountNumber
         {
             get { return accountNumber; }
@@ -36,12 +39,33 @@ namespace BankingApplication
             set { }
         }
 
-        public abstract void Withdraw(decimal amount, char type = 'W');
+        public void Withdraw(decimal amount, char transactionType = Transaction.WithdrawTransaction)
+        {
+
+            if (!(Balance -amount >= minimumBalance))
+            {
+                throw new Exception("Insufficient funds.");
+            }
+            
+            Balance = Balance - amount;
+            
+            var filteredList =  Transactions.Where(t => t.TransactionType != Transaction.ServiceTransaction);
+            
+            if (filteredList.Count() >= NumberOfFreeTransactions + 1)
+            {
+                Balance = Balance - WithDrawServiceCharge;
+                GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
+            }
+
+            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
+            GenerateTransaction(amount, transactionType);
+            
+        }
         public void Deposit(decimal amount)
         {
             balance = balance + amount;
             DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
-            GenerateTransaction(amount,'D');
+            GenerateTransaction(amount, Transaction.DepositTransaction);
         }
         
         public void GenerateTransaction(decimal amount,char transactionType)

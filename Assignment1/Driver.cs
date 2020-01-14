@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 
 namespace BankingApplication
 {
@@ -65,8 +66,7 @@ namespace BankingApplication
         public void Withdraw()
         {
             var account = CustomerAccountSelection();
-
-
+            
             Console.WriteLine("Enter the amount you want to withdraw");
             decimal amount = 0;
             
@@ -99,7 +99,7 @@ namespace BankingApplication
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
 
-            account.Withdraw(amount, 'T');
+          //  account.Withdraw(amount, 'T');
             //Incomplete transfer method, needs to update transfer target
             Console.WriteLine("Transfer Complete");
 
@@ -128,7 +128,7 @@ namespace BankingApplication
                     display = display + " Comment: " + t.Comment;
                 Console.WriteLine(display);
                 
-                if(endIndex == startIndex -3 || endIndex ==0)
+                if(((endIndex == startIndex -3) || (endIndex ==0)) && (account.Transactions.Count() > 4))
                 {
                     while(true)
                     {

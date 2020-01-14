@@ -6,25 +6,10 @@ namespace BankingApplication
 {
     class Savings : Account
     {
-
-        public override void Withdraw(decimal amount, char type = 'W')
+        public Savings()
         {
-            decimal atmWithdrawFee = 0.10M;
-
-            if (!(Balance >= amount))
-            {
-                throw new Exception("Insufficient funds.");
-            }
-
-            Balance = Balance - amount;
-
-            if (Transactions.Count >= 4)
-            {
-                Balance = Balance - atmWithdrawFee;
-            }
-
-            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
-            GenerateTransaction(amount, type);
+            minimumBalance = 0;
         }
+        
     }
 }
