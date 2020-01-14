@@ -75,7 +75,7 @@ namespace BankingApplication
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
             
-            account.withdraw(amount);
+            account.Withdraw(amount);
 
             Console.WriteLine("Withdraw successful");
         }
@@ -99,7 +99,7 @@ namespace BankingApplication
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
 
-            account.withdraw(amount, 'T');
+            account.Withdraw(amount, 'T');
             //Incomplete transfer method, needs to update transfer target
             Console.WriteLine("Transfer Complete");
 

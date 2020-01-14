@@ -319,7 +319,7 @@ namespace BankingApplication
 
 
 
-        public List<Account> GetAccountData(int customerId)
+        public List<IAccount> GetAccountData(int customerId)
         {       
             int accountNumber = 0;
             decimal balance = 0;

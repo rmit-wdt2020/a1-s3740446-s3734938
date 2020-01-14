@@ -6,17 +6,16 @@ namespace BankingApplication
     public interface IAccount
     {
         int AccountNumber { get; set; }
-        //char AccountType { get; set; }
         int CustomerId { get; set; }
         decimal Balance { get; set; }
         List<Transaction> Transactions { get; set; }
 
-        public void withdraw(decimal amount, char type = 'W') { }
+        public void Withdraw(decimal amount, char type = 'W') { }
 
-        public void deposit(decimal amount) { }
+        public void Deposit(decimal amount) { }
 
 
-        public void generateTransaction(decimal amount, char transactionType) { }
+        public void GenerateTransaction(decimal amount, char transactionType) { }
 
     }
 }

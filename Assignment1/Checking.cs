@@ -7,7 +7,6 @@ namespace BankingApplication
     class Checking : IAccount
     {
         private int accountNumber;
-        //private char accountType;
         private int customerId;
         private decimal balance;
 
@@ -18,12 +17,6 @@ namespace BankingApplication
             get { return accountNumber; }
             set { accountNumber = value; }
         }
-
-        //public char AccountType
-        //{
-        //    get { return accountType; }
-        //    set { accountType = value; }
-        //}
 
         public int CustomerId
         {
@@ -43,7 +36,7 @@ namespace BankingApplication
             set { }
         }
 
-        public void withdraw(decimal amount, char type = 'W')
+        public void Withdraw(decimal amount, char type = 'W')
         {
             decimal atmWithdrawFee = 0.10M;
 
@@ -59,17 +52,17 @@ namespace BankingApplication
                 balance = balance - atmWithdrawFee;
             }
 
-            DatabaseAccess.Instance.updateBalance(balance, accountNumber);
-            generateTransaction(amount, type);
+            DatabaseAccess.Instance.UpdateBalance(balance, accountNumber);
+            GenerateTransaction(amount, type);
         }
-        public void deposit(decimal amount)
+        public void Deposit(decimal amount)
         {
             balance = balance + amount;
-            DatabaseAccess.Instance.updateBalance(balance, this.accountNumber);
-            generateTransaction(amount, 'D');
+            DatabaseAccess.Instance.UpdateBalance(balance, this.accountNumber);
+            GenerateTransaction(amount, 'D');
         }
 
-        public void generateTransaction(decimal amount, char transactionType)
+        public void GenerateTransaction(decimal amount, char transactionType)
         {
             Transaction transaction = new Transaction()
             {
@@ -80,7 +73,7 @@ namespace BankingApplication
             };
 
             transactions.Add(transaction);
-            DatabaseAccess.Instance.insertTransaction(transaction);
+            DatabaseAccess.Instance.InsertTransaction(transaction);
         }
     }
 }
