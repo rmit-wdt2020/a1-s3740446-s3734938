@@ -8,7 +8,7 @@ namespace BankingApplication
 
     static class AccountFactory
     {
-        public static IAccount CreateAccount(int AccountNumber, char Type, int CustomerId, decimal Balance)
+        public static Account CreateAccount(int AccountNumber, char Type, int CustomerId, decimal Balance)
         {
             if(Type == 'S')
             {

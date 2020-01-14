@@ -113,7 +113,7 @@ namespace BankingApplication
                     CustCmd.Parameters.AddWithValue("@City", c.City);
                     CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
                     CustCmd.ExecuteNonQuery();
-                    foreach (IAccount a in c.Accounts)
+                    foreach (Account a in c.Accounts)
                     {
                         SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
                                                            " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
@@ -319,12 +319,12 @@ namespace BankingApplication
 
 
 
-        public List<IAccount> GetAccountData(int customerId)
+        public List<Account> GetAccountData(int customerId)
         {       
             int accountNumber = 0;
             decimal balance = 0;
             char accountType = 'q';
-            List<IAccount> accounts = new List<IAccount>();
+            List<Account> accounts = new List<Account>();
             try
             {
                 conn.Open();
