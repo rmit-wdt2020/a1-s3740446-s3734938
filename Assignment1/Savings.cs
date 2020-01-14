@@ -7,7 +7,6 @@ namespace BankingApplication
     class Savings : IAccount
     {
         private int accountNumber;
-        //private char accountType;
         private int customerId;
         private decimal balance;
 
@@ -20,11 +19,6 @@ namespace BankingApplication
             set { accountNumber = value; }
         }
 
-        //public char AccountType
-        //{
-        //    get { return accountType; }
-        //    set { accountType = value; }
-        //}
 
         public int CustomerId
         {
@@ -44,7 +38,7 @@ namespace BankingApplication
             set { }
         }
 
-        public void withdraw(decimal amount)
+        public void withdraw(decimal amount, char type = 'W')
         {
             decimal atmWithdrawFee = 0.10M;
 
@@ -53,11 +47,6 @@ namespace BankingApplication
                 throw new Exception("Insufficient funds.");
             }
 
-            //if (!(balance - amount >= 200) && accountType == 'C')
-            //{
-            //    throw new Exception("The minimum balance for a checking account is A$200 ");
-            //}
-
             balance = balance - amount;
 
             if (transactions.Count >= 4)
@@ -65,8 +54,8 @@ namespace BankingApplication
                 balance = balance - atmWithdrawFee;
             }
 
-            DatabaseAccess.Instance.updateBalance(balance, this.accountNumber);
-            generateTransaction(amount, 'W');
+            DatabaseAccess.Instance.updateBalance(balance, accountNumber);
+            generateTransaction(amount, type);
         }
         public void deposit(decimal amount)
         {
@@ -80,7 +69,7 @@ namespace BankingApplication
             Transaction transaction = new Transaction()
             {
                 TransactionType = transactionType,
-                AccountNumber = this.accountNumber,
+                AccountNumber = accountNumber,
                 Amount = amount,
                 TransactionTimeUtc = DateTime.UtcNow
             };

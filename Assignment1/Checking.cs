@@ -43,19 +43,14 @@ namespace BankingApplication
             set { }
         }
 
-        public void withdraw(decimal amount)
+        public void withdraw(decimal amount, char type = 'W')
         {
             decimal atmWithdrawFee = 0.10M;
 
-            if (!(balance >= amount))
+            if (!(balance - amount >= 200))
             {
-                throw new Exception("Insufficient funds.");
+                throw new Exception("Insufficient funds. /n The minimum balance for a checking account is A$200");
             }
-
-            //if (!(balance - amount >= 200) && accountType == 'C')
-            //{
-            //    throw new Exception("The minimum balance for a checking account is A$200 ");
-            //}
 
             balance = balance - amount;
 
@@ -64,8 +59,8 @@ namespace BankingApplication
                 balance = balance - atmWithdrawFee;
             }
 
-            DatabaseAccess.Instance.updateBalance(balance, this.accountNumber);
-            generateTransaction(amount, 'W');
+            DatabaseAccess.Instance.updateBalance(balance, accountNumber);
+            generateTransaction(amount, type);
         }
         public void deposit(decimal amount)
         {
@@ -79,7 +74,7 @@ namespace BankingApplication
             Transaction transaction = new Transaction()
             {
                 TransactionType = transactionType,
-                AccountNumber = this.accountNumber,
+                AccountNumber = accountNumber,
                 Amount = amount,
                 TransactionTimeUtc = DateTime.UtcNow
             };

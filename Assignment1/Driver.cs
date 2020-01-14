@@ -75,13 +75,34 @@ namespace BankingApplication
             }
             
             account.withdraw(amount);
-            Console.WriteLine("Withdraw successfull");
+
+            Console.WriteLine("Transfer successful");
         }
 
         public void TransferMoney()
         {
+            int accountNo;
+            decimal amount;
             var account = CustomerAccountSelection();
             Console.WriteLine("Your balance is " + account.Balance);
+            Console.WriteLine("Type target account number for transfer: ");
+            int.TryParse(Console.ReadLine(), out accountNo);
+            if (DatabaseAccess.Instance.DbChk("dbo.AccountExists", accountNo) == 0)
+            {
+                throw new InvalidDataException("Please enter a valid account number");
+            }
+            Console.WriteLine("Please enter transfer amount");
+            if (!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0)
+            {
+                throw new InvalidDataException("Please enter a valid amount greater than 0");
+            }
+
+            account.withdraw(amount, 'T');
+            //Incomplete transfer method, needs to update transfer target
+            Console.WriteLine("Transfer Complete");
+
+
+
 
         }
 
@@ -118,17 +139,6 @@ namespace BankingApplication
             
             account.deposit(amount);
             Console.WriteLine("Deposit successfull");
-        }
-
-        //Method needs to changing to find account outside of customer account
-        public IAccount checkIfAccountExists(int accountNumber)
-        {
-            var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
-            if(account == null) 
-            {
-                throw new Exception("Account does not exist.");
-            }
-            return account;
         }
 
         public IAccount CustomerAccountSelection()

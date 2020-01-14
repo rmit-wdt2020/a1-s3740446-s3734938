@@ -39,15 +39,21 @@ namespace BankingApplication
         private SqlDataReader read; 
           
         
-        public int DbChk()
+        public int DbChk(string sproc, int? account = null)
         {
-            SqlCommand cmd = new SqlCommand("dbo.CheckDb", conn);
+            SqlCommand cmd = new SqlCommand(sproc, conn);
 
             cmd.CommandType = CommandType.StoredProcedure;
+
             //Output Parameter
             cmd.Parameters.Add("@bool", SqlDbType.Bit).Direction = ParameterDirection.Output;
 
-            try
+            if (account.HasValue)
+            {
+                cmd.Parameters.AddWithValue("@accountNo", account);
+            }
+
+                try
             {
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -77,7 +83,6 @@ namespace BankingApplication
 
         public async Task GetJson()
         {
-            Console.WriteLine("Getting Json");
             var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
@@ -94,12 +99,6 @@ namespace BankingApplication
             
             SqlParameter jsonparam = new SqlParameter("@json", ljson);
             LoginCmd.Parameters.Add(jsonparam);
-
-            IAccount test = tmpList[0].Accounts[0];
-            IAccount testtwo = tmpList[0].Accounts[1];
-
-            Console.WriteLine(test.GetType().Name[0]);
-            Console.WriteLine(testtwo.GetType().Name[0]);
 
             try
             {

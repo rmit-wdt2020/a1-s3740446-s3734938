@@ -11,7 +11,7 @@ namespace BankingApplication
         decimal Balance { get; set; }
         List<Transaction> Transactions { get; set; }
 
-        public void withdraw(decimal amount) { }
+        public void withdraw(decimal amount, char type = 'W') { }
 
         public void deposit(decimal amount) { }
 
