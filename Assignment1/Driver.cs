@@ -14,8 +14,8 @@ namespace BankingApplication
         {
         }
 
-        public void initializeCustomer(int customerId){
-            var result = DatabaseAccess.Instance.getCustomerDetails(customerId);
+        public void InitializeCustomer(int customerId){
+            var result = DatabaseAccess.Instance.GetCustomerDetails(customerId);
             
             customer = new Customer() {
                 CustomerId = customerId, 
@@ -25,11 +25,11 @@ namespace BankingApplication
                 PostCode = result.Item4
             };
 
-            var accounts = DatabaseAccess.Instance.getAccountData(customerId);
+            var accounts = DatabaseAccess.Instance.GetAccountData(customerId);
 
             foreach (var item in accounts) {
                 
-                var transactions = DatabaseAccess.Instance.getTransactionData(item.AccountNumber);
+                var transactions = DatabaseAccess.Instance.GetTransactionData(item.AccountNumber);
                 foreach (var transaction in transactions) {
                         item.Transactions.Add(transaction);
                     }
@@ -37,34 +37,35 @@ namespace BankingApplication
             }
         }
 
-        public void performLogin()
+        public void PerformLogin()
         {   
             Thread.Sleep(3000);
             Console.Clear();
             Console.WriteLine("Enter your Login ID");
-            string loginID = Console.ReadLine(); 
+            string loginID = Console.ReadLine();
             Console.WriteLine("Enter your password");
             string passWord = Console.ReadLine();
         
-            var result = DatabaseAccess.Instance.getLoginDetails(loginID);
+            var result = DatabaseAccess.Instance.GetLoginDetails(loginID);
             
             if (auth.login(result.Item2, passWord))
             {
                 Console.WriteLine("Login successful.Welcome.");
                 customerLoggedIn = true;
-                this.initializeCustomer(result.Item1);
-                this.getCustomerChoice();
+                this.InitializeCustomer(result.Item1);
+                this.GetCustomerChoice();
             }
             else
             {
                 Console.WriteLine("Login Failed. Please try again.");
-                performLogin();
+                PerformLogin();
             }
         }
 
-        public void withdraw()
+        public void Withdraw()
         {
             var account = CustomerAccountSelection();
+
 
             Console.WriteLine("Enter the amount you want to withdraw");
             decimal amount = 0;
@@ -76,9 +77,10 @@ namespace BankingApplication
             
             account.withdraw(amount);
 
-            Console.WriteLine("Transfer successful");
+            Console.WriteLine("Withdraw successful");
         }
 
+        
         public void TransferMoney()
         {
             int accountNo;
@@ -101,33 +103,86 @@ namespace BankingApplication
             //Incomplete transfer method, needs to update transfer target
             Console.WriteLine("Transfer Complete");
 
-
-
-
         }
 
-        public void checkMyStatements()
+      
+        public void CheckMyStatements()
         {
             var account = CustomerAccountSelection();
 
             Console.WriteLine("Your balance is "+account.Balance);
             Console.WriteLine("\nList of Transactions: ");
-            for(int i = account.Transactions.Count -1;i >= account.Transactions.Count -4 && i>=0;i--)
+            
+            int startIndex = account.Transactions.Count - 1;
+            int endIndex = 0;
+            
+            for(int i = startIndex;i >= startIndex -3 && i>=0;--i)
             {
+                endIndex = i;
                 Transaction t = account.Transactions[i];
                 string display = "TransactionType: " + t.TransactionType + " AccountNumber: " + t.AccountNumber;
                 if(t.DestinationAccountNumber != 0)
                     display = display + " Destination Account Number: " + t.DestinationAccountNumber;
-                display = display + " Amount: " + t.Amount + " Transaction Time: " + ((DateTime) t.TransactionTimeUtc).ToLocalTime();
+                display = display + " Amount: " + (double) t.Amount + " Transaction Time: " + ((DateTime) t.TransactionTimeUtc).ToLocalTime();
                 if(t.Comment != null)
                     display = display + " Comment: " + t.Comment;
                 Console.WriteLine(display);
+                
+                if(endIndex == startIndex -3 || endIndex ==0)
+                {
+                    while(true)
+                    {
+                        Console.WriteLine("Type > to view next transactions, < to view previous transactions and . to return to menu");
+                        string inputChar = Console.ReadLine();
+                        if(inputChar == "<")
+                        {
+                            if(endIndex == 0) 
+                            { 
+                                Console.WriteLine("No more previous transactions to display.");
+                            }
+                            else
+                            {
+                                startIndex = endIndex;
+                                i = startIndex;
+                                startIndex = endIndex - 1;
+                                break;
+                            }
+                                
+                        }
+                        else if(inputChar == ".")
+                        {
+                            GetCustomerChoice();
+                        }
+                        else if(inputChar == ">")
+                        {   
+                            if(startIndex == account.Transactions.Count - 1)
+                            {
+                               Console.WriteLine("No further transactions to display."); 
+                               
+                            }
+                            else
+                            {
+                                startIndex = startIndex + 4;
+                                if(startIndex > account.Transactions.Count - 1){ startIndex = account.Transactions.Count - 1;}
+                                i = startIndex + 1;
+                                break;
+                            }
+                            
+                        }
+                        else
+                        {
+                            Console.WriteLine("Please enter one of the following: '>' , '<' , '.'");
+                        }
+                    }
+                }
             }
         }
 
-        public void deposit()
+        public void Deposit()
         {
+
             var account = CustomerAccountSelection();
+
 
             Console.WriteLine("Enter the amount you want to deposit");
             decimal amount = 0;
@@ -137,7 +192,7 @@ namespace BankingApplication
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
             
-            account.deposit(amount);
+            account.Deposit(amount);
             Console.WriteLine("Deposit successfull");
         }
 
@@ -158,7 +213,7 @@ namespace BankingApplication
             return customer.Accounts[selection - 1];
         }
 
-        public void getCustomerChoice()
+        public void GetCustomerChoice()
         {
             while(customerLoggedIn)
             {
@@ -178,7 +233,7 @@ namespace BankingApplication
                     case "1":
                     try
                     {
-                        withdraw();
+                        Withdraw();
                     }
                     catch(Exception e)
                     {
@@ -188,7 +243,7 @@ namespace BankingApplication
                     case "2":
                     try
                     {
-                        deposit();
+                        Deposit();
                     }
                     catch(Exception e)
                     {
@@ -200,7 +255,7 @@ namespace BankingApplication
                     case "4":
                     try
                     {
-                        checkMyStatements();
+                        CheckMyStatements();
                     }
                     catch(Exception e)
                     {
@@ -208,7 +263,7 @@ namespace BankingApplication
                     }
                     break;
                     case "5":
-                    performLogin();
+                    PerformLogin();
                     break;
                     case "6":
                     Environment.Exit(0);

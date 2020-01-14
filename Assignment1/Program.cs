@@ -13,7 +13,7 @@ namespace BankingApplication
                 await DatabaseAccess.Instance.GetJson();
             }
             Driver driver = new Driver();
-            driver.performLogin();
+            driver.PerformLogin();
         }
 
     }

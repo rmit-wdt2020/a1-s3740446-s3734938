@@ -156,7 +156,7 @@ namespace BankingApplication
 
         }
 
-        public void updateBalance(decimal amount, int accountNumber)
+        public void UpdateBalance(decimal amount, int accountNumber)
                 {
                     try
                     {
@@ -192,7 +192,7 @@ namespace BankingApplication
                     }
                 }
 
-        public void insertTransaction(Transaction t)
+        public void InsertTransaction(Transaction t)
                 {
                     try
                     {
@@ -228,7 +228,7 @@ namespace BankingApplication
                         }
                     }
                 }
-        public (string,string,string,string) getCustomerDetails(int customerId)
+        public (string,string,string,string) GetCustomerDetails(int customerId)
                 {
                     string name = "";
                     string address = "";
@@ -274,7 +274,7 @@ namespace BankingApplication
                     }
                     return (name,address,city,postcode);
                 }
-        public (int,string) getLoginDetails(string loginId)
+        public (int,string) GetLoginDetails(string loginId)
         {
             string passwordhash = "";
             int customerId = 0;
@@ -317,8 +317,10 @@ namespace BankingApplication
             return (customerId,passwordhash);
         }
 
-        public List<IAccount> getAccountData(int customerId)
-        {
+
+
+        public List<Account> GetAccountData(int customerId)
+        {       
             int accountNumber = 0;
             decimal balance = 0;
             char accountType = 'q';
@@ -367,7 +369,7 @@ namespace BankingApplication
             return accounts;
         }
 
-        public List<Transaction> getTransactionData(int accountId)
+        public List<Transaction> GetTransactionData(int accountId)
         {       
             int transactionId;
             char transactionType;
