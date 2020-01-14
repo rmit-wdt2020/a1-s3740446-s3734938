@@ -64,14 +64,8 @@ namespace BankingApplication
 
         public void Withdraw()
         {
-             Console.WriteLine("Enter the account number");
-             int accountNumber = 0;
-             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-             {
-                throw new InvalidDataException("Please enter a valid number");
-             }
-             
-            var account = CheckIfAccountExists(accountNumber);
+            var account = CustomerAccountSelection();
+
 
             Console.WriteLine("Enter the amount you want to withdraw");
             decimal amount = 0;
@@ -81,21 +75,41 @@ namespace BankingApplication
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
             
-            account.Withdraw(amount);
-            Console.WriteLine("Withdraw successfull");
+            account.withdraw(amount);
+
+            Console.WriteLine("Withdraw successful");
         }
 
+        
+        public void TransferMoney()
+        {
+            int accountNo;
+            decimal amount;
+            var account = CustomerAccountSelection();
+            Console.WriteLine("Your balance is " + account.Balance);
+            Console.WriteLine("Type target account number for transfer: ");
+            int.TryParse(Console.ReadLine(), out accountNo);
+            if (DatabaseAccess.Instance.DbChk("dbo.AccountExists", accountNo) == 0)
+            {
+                throw new InvalidDataException("Please enter a valid account number");
+            }
+            Console.WriteLine("Please enter transfer amount");
+            if (!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0)
+            {
+                throw new InvalidDataException("Please enter a valid amount greater than 0");
+            }
+
+            account.withdraw(amount, 'T');
+            //Incomplete transfer method, needs to update transfer target
+            Console.WriteLine("Transfer Complete");
+
+        }
+
+      
         public void CheckMyStatements()
         {
-            Console.WriteLine("Enter the account number");
-            int accountNumber = 0;
-            if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-            {
-                throw new InvalidDataException("Please enter a valid number");
-            }
-             
-             var account = CheckIfAccountExists(accountNumber);
-           
+            var account = CustomerAccountSelection();
+
             Console.WriteLine("Your balance is "+account.Balance);
             Console.WriteLine("\nList of Transactions: ");
             
@@ -166,14 +180,9 @@ namespace BankingApplication
 
         public void Deposit()
         {
-             Console.WriteLine("Enter the account number");
-             int accountNumber = 0;
-             if(!int.TryParse(Console.ReadLine(), out accountNumber) || accountNumber <= 0) 
-                {
-                    throw new InvalidDataException("Please enter a valid number");
-                }
-            
-            var account = CheckIfAccountExists(accountNumber);
+
+            var account = CustomerAccountSelection();
+
 
             Console.WriteLine("Enter the amount you want to deposit");
             decimal amount = 0;
@@ -187,14 +196,21 @@ namespace BankingApplication
             Console.WriteLine("Deposit successfull");
         }
 
-        public Account CheckIfAccountExists(int accountNumber)
+        public IAccount CustomerAccountSelection()
         {
-            var account = customer.accounts.Find(a => a.AccountNumber == accountNumber);
-            if(account == null) 
+            var count = 1;
+            var selection = 0;
+            foreach(var account in customer.Accounts)
             {
-                throw new Exception("Account does not exist.");
+                Console.WriteLine(count + ": " +account.AccountNumber);
+                count++;
             }
-            return account;
+            if (!int.TryParse(Console.ReadLine(), out selection) || selection < 1 || selection > customer.Accounts.Count)
+            {
+                throw new InvalidDataException("Please enter a valid number");
+            }
+
+            return customer.Accounts[selection - 1];
         }
 
         public void GetCustomerChoice()
