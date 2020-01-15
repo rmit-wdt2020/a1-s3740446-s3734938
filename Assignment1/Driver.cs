@@ -83,24 +83,52 @@ namespace BankingApplication
         
         public void TransferMoney()
         {
-            int accountNo;
-            decimal amount;
-            var account = CustomerAccountSelection();
-            Console.WriteLine("Your balance is " + account.Balance);
+            int accountNo = 0;
+            decimal amount = 0;
+            string answer = "";
+            string comment = "";
+            var senderAccount = CustomerAccountSelection();
+            Console.WriteLine("Your balance is " + senderAccount.Balance);
+            
             Console.WriteLine("Type target account number for transfer: ");
             int.TryParse(Console.ReadLine(), out accountNo);
-            if (DatabaseAccess.Instance.DbChk("dbo.AccountExists", accountNo) == 0)
+
+            var receiverAccount = DatabaseAccess.Instance.GetAccountDataViaAccountID(accountNo);
+
+            if(receiverAccount == null)
             {
                 throw new InvalidDataException("Please enter a valid account number");
             }
+
+            if(receiverAccount.AccountNumber == senderAccount.AccountNumber)
+            {
+                throw new InvalidDataException("Sending and receiving accounts cannot be the same.");
+            }
+
             Console.WriteLine("Please enter transfer amount");
             if (!decimal.TryParse(Console.ReadLine(), out amount) || amount <= 0)
             {
                 throw new InvalidDataException("Please enter a valid amount greater than 0");
             }
 
-          //  account.Withdraw(amount, 'T');
-            //Incomplete transfer method, needs to update transfer target
+            do
+            {
+                Console.WriteLine("Do you wish to enter a comment? (Y/N)");
+                answer = Console.ReadLine();
+                if(answer == "y" || answer =="Y")
+                {
+                    Console.WriteLine("Type your comment:");
+                    comment = Console.ReadLine();
+                    break;
+                }
+                if(answer == "n" || answer =="N")
+                {
+                    break;
+                }
+            }while(!(answer == "y" || answer == "n" || answer == "Y" || answer == "N"));
+            
+            senderAccount.TransferMoney(amount,receiverAccount,comment);
+            
             Console.WriteLine("Transfer Complete");
 
         }
@@ -251,6 +279,14 @@ namespace BankingApplication
                     }
                     break;
                     case "3":
+                    try
+                    {
+                        TransferMoney();
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                     break;
                     case "4":
                     try

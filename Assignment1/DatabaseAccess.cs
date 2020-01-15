@@ -198,13 +198,14 @@ namespace BankingApplication
                     {
                         conn.Open();
 
-                        SqlCommand cmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
-                                                                " VALUES (@TransactionType, @AccountNumber, case when @DestinationAccountNumber = 0 then null else @DestinationAccountNumber end, @Amount, @TransactionTimeUtc)", conn);
+                        SqlCommand cmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc, Comment)" +
+                                                                " VALUES (@TransactionType, @AccountNumber, case when @DestinationAccountNumber = 0 then null else @DestinationAccountNumber end, @Amount, @TransactionTimeUtc, case when @Comment is null then null else @Comment end)", conn);
                         cmd.Parameters.AddWithValue("@TransactionType", t.TransactionType);
                         cmd.Parameters.AddWithValue("@AccountNumber", t.AccountNumber);
                         cmd.Parameters.AddWithValue("@DestinationAccountNumber", t.DestinationAccountNumber);
                         cmd.Parameters.AddWithValue("@Amount", t.Amount);
                         cmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
+                        cmd.Parameters.AddWithValue("@Comment", t.Comment);
                         cmd.ExecuteNonQuery();
                     }
                     catch (SqlException se)
@@ -367,6 +368,55 @@ namespace BankingApplication
             }
             
             return accounts;
+        }
+
+        public Account GetAccountDataViaAccountID(int accountId)
+        {       
+            int customerId = 0;
+            decimal balance = 0;
+            char accountType = 'q';
+            Account account = null;
+            try
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("select * from account where accountnumber = @accountId", conn);
+
+                cmd.Parameters.AddWithValue("@accountId", accountId);
+
+                read = cmd.ExecuteReader();
+
+                while (read.Read())
+                {
+                    customerId = read.GetInt32("customerid");
+                    accountType = read.GetString(1)[0];
+                    balance = read.GetDecimal(3);
+
+                    account = AccountFactory.CreateAccount(accountId, accountType, customerId, balance);
+                }
+
+            }
+            catch (SqlException se)
+            {
+                Console.WriteLine("SQL Exception: {0}", se.Message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: {0}", e.Message);
+            }
+            finally
+            {
+                if (read != null)
+                {
+                    read.Close();
+                }
+
+                if (conn != null)
+                {
+                    conn.Close();
+                }
+            }
+            
+            return account;
         }
 
         public List<Transaction> GetTransactionData(int accountId)

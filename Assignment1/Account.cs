@@ -39,7 +39,7 @@ namespace BankingApplication
             set { }
         }
 
-        public void Withdraw(decimal amount, char transactionType = Transaction.WithdrawTransaction)
+        public void Withdraw(decimal amount)
         {
 
             if (!(Balance -amount >= minimumBalance))
@@ -53,12 +53,12 @@ namespace BankingApplication
             
             if (filteredList.Count() >= NumberOfFreeTransactions + 1)
             {
-                Balance = Balance - WithDrawServiceCharge;
-                GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
+                    Balance = Balance - WithDrawServiceCharge;
+                    GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
             }
 
             DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
-            GenerateTransaction(amount, transactionType);
+            GenerateTransaction(amount, Transaction.WithdrawTransaction);
             
         }
         public void Deposit(decimal amount)
@@ -68,17 +68,46 @@ namespace BankingApplication
             GenerateTransaction(amount, Transaction.DepositTransaction);
         }
         
-        public void GenerateTransaction(decimal amount,char transactionType)
+        public void GenerateTransaction(decimal amount,char transactionType,int destinationAccountNumber = 0,string comment = "")
         {
             Transaction transaction = new Transaction(){
             TransactionType = transactionType,
             AccountNumber = this.accountNumber,
             Amount = amount,
-            TransactionTimeUtc = DateTime.UtcNow
+            TransactionTimeUtc = DateTime.UtcNow,
+            DestinationAccountNumber = destinationAccountNumber,
+            Comment = comment
             };
 
             transactions.Add(transaction);
             DatabaseAccess.Instance.InsertTransaction(transaction);
+        }
+
+        public void TransferMoney(decimal amount, Account receiverAccount,string comment = "")
+        {
+            if (!(Balance - amount >= minimumBalance))
+            {
+                throw new Exception("Insufficient funds.");
+            }
+            
+            Balance = Balance - amount;
+            
+            var filteredList =  Transactions.Where(t => t.TransactionType != Transaction.ServiceTransaction);
+            
+            if (filteredList.Count() >= NumberOfFreeTransactions + 1)
+            {
+                    Balance = Balance - TransferServiceCharge;
+                    GenerateTransaction(TransferServiceCharge,Transaction.ServiceTransaction,receiverAccount.AccountNumber);
+                
+            }
+
+            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
+            GenerateTransaction(amount, Transaction.TransferTransaction,receiverAccount.AccountNumber,comment);
+
+            receiverAccount.Balance = receiverAccount.Balance + amount;
+            DatabaseAccess.Instance.UpdateBalance(receiverAccount.Balance,receiverAccount.AccountNumber);
+            receiverAccount.GenerateTransaction(amount, Transaction.TransferTransaction,0,comment);
+            
         }
 
     }
