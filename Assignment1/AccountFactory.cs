@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BankingApplication
+﻿namespace BankingApplication
 {
-    //Factory pattern for creating Account objects
-
+    //Factory pattern for creating Account objects.
     static class AccountFactory
     {
         public static Account CreateAccount(int AccountNumber, char Type, int CustomerId, decimal Balance)

@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using Microsoft.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
