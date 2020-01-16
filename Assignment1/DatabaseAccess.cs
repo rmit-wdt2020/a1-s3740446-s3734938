@@ -18,6 +18,7 @@ namespace BankingApplication
         private CustomerRepository CustomerRepo = new CustomerRepository();
         private AccountRepository AccountRepo = new AccountRepository();
         private TransactionRepository TransactionRepo = new TransactionRepository();
+        private LoginInfoRepository LoginInfoRepo = new LoginInfoRepository();
         private DatabaseAccess()  
         {  
         }  
@@ -98,12 +99,7 @@ namespace BankingApplication
 
             //Deserialize json into list (Referenced from Web Development Tutorial 2 but with added date time converter)
             List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson, converter, dateTimeConverter);
-
-            SqlCommand LoginCmd = new SqlCommand("dbo.InsertLogin", conn);
-            LoginCmd.CommandType = CommandType.StoredProcedure;
-            
-            SqlParameter jsonparam = new SqlParameter("@json", ljson);
-            LoginCmd.Parameters.Add(jsonparam);
+            List<LoginInfo> ltmpList = JsonConvert.DeserializeObject<List<LoginInfo>>(ljson);
 
             try
             {
@@ -111,39 +107,19 @@ namespace BankingApplication
                 foreach (Customer c in tmpList)
                 {
                     CustomerRepo.Insert(c);
-                    //SqlCommand CustCmd = new SqlCommand("INSERT INTO CUSTOMER (CustomerID, Name, Address, City, Postcode)" +
-                    //                                    " VALUES(@CustomerID, @Name, @Address, @City, @Postcode )", conn);
-                    //CustCmd.Parameters.AddWithValue("@CustomerID", c.CustomerId);
-                    //CustCmd.Parameters.AddWithValue("@Name", c.Name);
-                    //CustCmd.Parameters.AddWithValue("@Address", c.Address);
-                    //CustCmd.Parameters.AddWithValue("@City", c.City);
-                    //CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
-                    //CustCmd.ExecuteNonQuery();
                     foreach (Account a in c.Accounts)
                     {
                         AccountRepo.Insert(a);
-                        //SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
-                        //                                   " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
-                        //AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
-                        //AccCmd.Parameters.AddWithValue("@AccountType", a.GetType().Name[0]);
-                        //AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
-                        //AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
-                        //AccCmd.ExecuteNonQuery();
                         foreach(Transaction t in a.Transactions)
                         {
                             TransactionRepo.SeedInsert(t, a);
-                            //SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
-                            //                                    " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
-                            //TranCmd.Parameters.AddWithValue("@TransactionType", "D");
-                            //TranCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
-                            //TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", a.AccountNumber);
-                            //TranCmd.Parameters.AddWithValue("@Amount", a.Balance);
-                            //TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
-                            //TranCmd.ExecuteNonQuery();
                         }
                     }
                 }
-                LoginCmd.ExecuteNonQuery();
+                foreach (LoginInfo l in ltmpList)
+                {
+                    LoginInfoRepo.Insert(l);
+                }
             }
             catch (SqlException se)
             {

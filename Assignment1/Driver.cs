@@ -14,6 +14,7 @@ namespace BankingApplication
         CustomerRepository CustomerRepo = new CustomerRepository();
         AccountRepository AccountRepo = new AccountRepository();
         TransactionRepository TransactionRepo = new TransactionRepository();
+        LoginInfoRepository LoginInfoRepo = new LoginInfoRepository();
         
         // Variable for keeping a tab whether a customer is logged in the system or not.
         bool customerLoggedIn = false;
@@ -44,25 +45,25 @@ namespace BankingApplication
         public void PerformLogin()
         {   
             // Clearing the console every time customer logs out or a new customer logs in.
-            //Console.Clear();
+            Console.Clear();
 
             // Taking loginID and password inputs from customer.
             Console.WriteLine("Enter your Login ID");
-            string loginID = Console.ReadLine();
+            int loginID = Convert.ToInt32(Console.ReadLine());
             Console.WriteLine("Enter your password");
             string passWord = Console.ReadLine();
         
             // Fetching passwordhash from database to verify user identity. Result contains customerID and passwordhash.
-            var result = DatabaseAccess.Instance.GetLoginDetails(loginID);
+            var logininfo = LoginInfoRepo.SelectById(loginID);
             
             // If login is successfull, initialise customer object, and redirect customer to menu to choose tasks 
             // to perform such as withdraw, deposit etc.
-            if (auth.login(result.Item2, passWord))
+            if (auth.login(logininfo.PasswordHash, passWord))
             {
                 Console.WriteLine("Login successful.Welcome.");
                 customerLoggedIn = true;
-                this.InitializeCustomer(result.Item1);
-                this.GetCustomerChoice();
+                InitializeCustomer(logininfo.CustomerId);
+                GetCustomerChoice();
             }
             else
             {

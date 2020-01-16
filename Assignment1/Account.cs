@@ -74,7 +74,7 @@ namespace BankingApplication
         public void Deposit(decimal amount)
         {
             balance = balance + amount;
-            DatabaseAccess.Instance.UpdateBalance(balance,this.accountNumber);
+            AccountRepo.Update(this);
             GenerateTransaction(amount, Transaction.DepositTransaction);
         }
         
@@ -96,9 +96,9 @@ namespace BankingApplication
             TransactionRepo.Insert(transaction);
         }
 
+        // This code block performs a withdraw with transaction type as transfer.
         public void TransferMoney(decimal amount, Account receiverAccount, string comment = "")
         {
-            // This code block performs a withdraw with transaction type as transfer.
             if (!(Balance - amount >= minimumBalance))
             {
                 throw new Exception("Insufficient funds.");
