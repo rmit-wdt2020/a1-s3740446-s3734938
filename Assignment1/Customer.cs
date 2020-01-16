@@ -10,7 +10,7 @@ namespace BankingApplication
         private string city;
         private string postCode;
 
-        public List<Account> accounts = new List<Account>(); 
+        private List<Account> accounts = new List<Account>(); 
 
         public int CustomerId   
         {
@@ -58,7 +58,7 @@ namespace BankingApplication
         public List<Account> Accounts
         {
             get { return accounts; }
-            set { }
+            set { accounts = value; }
         }
 
         public Customer()
