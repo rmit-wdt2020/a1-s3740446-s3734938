@@ -189,7 +189,7 @@ namespace BankingApplication
                 if(t.DestinationAccountNumber != 0)
                     display = display + " Destination Account Number: " + t.DestinationAccountNumber;
                 display = display + " Amount: " + (double) t.Amount + " Transaction Time: " + ((DateTime) t.TransactionTimeUtc).ToLocalTime();
-                if(t.Comment != null)
+                if(t.Comment != "" && t.Comment != null)
                     display = display + " Comment: " + t.Comment;
                 Console.WriteLine(display);
                 
