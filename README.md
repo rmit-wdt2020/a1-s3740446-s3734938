@@ -14,14 +14,18 @@ We decided to make two object types of account that inherit an abstract class as
 Repository Pattern
 As our database class for handling SQL was getting quite large we decided to split it into a repository class that was segmented by the objects the SQL would handle. This includes an interface and an abstract class inherited by each repository type.
 This pattern allows for organization of SQL statements by object type and future implementation of methods for each object type in order to easily modify and introduce new statements to an SQL Data Server.
+
+
+ 
+A single sproc was used in this program which is contained in the sprocs folder.
  
 References: 
 
 Modified Json converter from the following post about deserialization in json.net
 https://skrift.io/articles/archive/bulletproof-interface-deserialization-in-jsonnet/
 
-Factory pattern modified from lecture examples 
+Factory pattern modified from lecture examples. 
 
-Json deserialization string modified from lecture examples 
+Json deserialization string modified from lecture examples. 
 
 Json obscuring method from tutorial examples.
