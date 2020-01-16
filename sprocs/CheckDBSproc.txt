@@ -1,0 +1,15 @@
+DROP PROCEDURE IF EXISTS dbo.CheckDb
+GO
+
+CREATE PROCEDURE dbo.CheckDb
+
+@bool bit OUTPUT
+
+AS
+BEGIN
+
+IF (SELECT count(*) FROM dbo.Customer) = 0
+SET @bool = 1
+ELSE
+SET @bool = 0
+END
