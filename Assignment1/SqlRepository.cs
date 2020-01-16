@@ -6,6 +6,7 @@ using System.Text;
 
 namespace BankingApplication
 {
+    //Abstract repository for handling connection logic for SQL repositories
     public abstract class SqlRepository
     {
         //Connection string retrieval from Json.

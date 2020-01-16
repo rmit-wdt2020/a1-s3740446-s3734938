@@ -2,6 +2,7 @@
 
 namespace BankingApplication
 {
+    //Class for handling password hashing and authentication
     public class Authentication
     {
         public Authentication()

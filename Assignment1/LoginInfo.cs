@@ -4,6 +4,7 @@ using System.Text;
 
 namespace BankingApplication
 {
+    //LoginInfo class for defining login objects
     class LoginInfo
     {
         private string loginid;

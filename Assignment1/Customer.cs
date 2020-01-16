@@ -2,6 +2,7 @@
 
 namespace BankingApplication
 {
+    //Customer class for defining customer objects
     public class Customer
     {
         private int customerId = 0;

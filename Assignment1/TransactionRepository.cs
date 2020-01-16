@@ -6,6 +6,7 @@ using System.Text;
 
 namespace BankingApplication
 {
+    //Transaction Repository containing SQL
     public class TransactionRepository : SqlRepository, ISqlRepository<Transaction>
     {
         public void Insert(Transaction t)

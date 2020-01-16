@@ -1,6 +1,7 @@
 ﻿using System;
 namespace BankingApplication
 {
+    //Class for defining transaction objects
     public class Transaction
     {
         public const char WithdrawTransaction = 'W';
