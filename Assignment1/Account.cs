@@ -40,6 +40,11 @@ namespace BankingApplication
             set { transactions = value; }
         }
 
+        public string FormattedBalance
+        {
+            get { return string.Format("{0:C}", balance); }
+        }
+
         public void Withdraw(decimal amount)
         {
             // Check if remaining balance after withdraw is greater than minimum balance required for the account.
@@ -49,7 +54,7 @@ namespace BankingApplication
             }
             
             // Decrease existing balance.
-            Balance = Balance - amount;
+            Balance -= amount;
             
             // Make a list of transactions excluding the service type. If this list has four or more transactions
             // charge a withdraw fee.
@@ -60,8 +65,13 @@ namespace BankingApplication
             if (filteredList.Count() >= NumberOfFreeTransactions + 1)
             {
                     // Deduct withdraw service charges and generate a separate transaction for that.
-                    Balance = Balance - WithDrawServiceCharge;
+                    Balance -= WithDrawServiceCharge;
+                    Console.WriteLine("Service charge of 0.10 incurred");
                     GenerateTransaction(WithDrawServiceCharge,Transaction.ServiceTransaction);
+            }
+            else
+            {
+                Console.WriteLine((NumberOfFreeTransactions - filteredList.Count()) + " free transactions left.");
             }
 
             // Updating the database.
@@ -104,15 +114,20 @@ namespace BankingApplication
                 throw new Exception("Insufficient funds.");
             }
             
-            Balance = Balance - amount;
+            Balance -= amount;
             
             var filteredList =  Transactions.Where(t => t.TransactionType != Transaction.ServiceTransaction);
             
             if (filteredList.Count() >= NumberOfFreeTransactions + 1)
             {
-                    Balance = Balance - TransferServiceCharge;
-                    GenerateTransaction(TransferServiceCharge,Transaction.ServiceTransaction,receiverAccount.AccountNumber);
-                
+                    Balance -= TransferServiceCharge;
+                Console.WriteLine("Service charge of 0.20 incurred");
+                GenerateTransaction(TransferServiceCharge,Transaction.ServiceTransaction,receiverAccount.AccountNumber);
+                    
+            }
+            else
+            {
+                Console.WriteLine((NumberOfFreeTransactions - filteredList.Count()) + " free transactions left.");
             }
 
             // Update sender account's balance.

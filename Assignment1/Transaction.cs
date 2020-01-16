@@ -58,6 +58,11 @@ namespace BankingApplication
             set { transactionTimeUtc = value; }
 
         }
+
+        public string FormattedAmount
+        {
+            get { return string.Format("{0:C}", amount); }
+        }
     }
 }
 

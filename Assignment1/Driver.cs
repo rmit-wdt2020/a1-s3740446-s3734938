@@ -7,7 +7,7 @@ namespace BankingApplication
     public class Driver
     {   
         // Reference to Authrepository class to call login method.
-        AuthRepository auth = new AuthRepository();
+        Authentication auth = new Authentication();
         Customer customer;
 
         //Repository objects
@@ -56,13 +56,20 @@ namespace BankingApplication
             // Fetching passwordhash from database to verify user identity. Result contains customerID and passwordhash.
             var logininfo = LoginInfoRepo.SelectById(loginID);
             
+            if (logininfo == null)
+            {
+                Console.WriteLine("Login failed. Please try again");
+                Thread.Sleep(3000);
+                PerformLogin();
+            }
+
             // If login is successfull, initialise customer object, and redirect customer to menu to choose tasks 
             // to perform such as withdraw, deposit etc.
             if (auth.login(logininfo.PasswordHash, passWord))
             {
-                Console.WriteLine("Login successful.Welcome.");
-                customerLoggedIn = true;
                 InitializeCustomer(logininfo.CustomerId);
+                Console.WriteLine("Login successful. Welcome "+customer.Name+".");
+                customerLoggedIn = true;
                 GetCustomerChoice();
             }
             else
@@ -78,8 +85,9 @@ namespace BankingApplication
         {
             // Customer's selected account to do the withdraw.
             var account = CustomerAccountSelection();
+            Console.WriteLine("Your balance is: " + account.FormattedBalance);
             
-            Console.WriteLine("Enter the amount you want to withdraw");
+            Console.WriteLine("Enter the amount you want to withdraw: ");
             decimal amount = 0;
             
             // Not allowing the customer to enter a negative amount and validation to check if input is a number.
@@ -109,7 +117,7 @@ namespace BankingApplication
             // The account object from which money would be sent.
             var senderAccount = CustomerAccountSelection();
             
-            Console.WriteLine("Your balance is " + senderAccount.Balance);
+            Console.WriteLine("Your balance is: " + senderAccount.FormattedBalance);
             
             Console.WriteLine("Type target account number for transfer: ");
             int.TryParse(Console.ReadLine(), out accountNo);
@@ -162,11 +170,12 @@ namespace BankingApplication
         }
 
       
+        //Method for displaying customer transactions in selected account
         public void CheckMyStatements()
         {
             var account = CustomerAccountSelection();
 
-            Console.WriteLine("Your balance is "+account.Balance);
+            Console.WriteLine("Your balance is: "+account.FormattedBalance);
             Console.WriteLine("\nList of Transactions: ");
             
             // Code for paging and displaying four transactions on the screen.
@@ -188,7 +197,7 @@ namespace BankingApplication
                 string display = "TransactionType: " + t.TransactionType + " AccountNumber: " + t.AccountNumber;
                 if(t.DestinationAccountNumber != 0)
                     display = display + " Destination Account Number: " + t.DestinationAccountNumber;
-                display = display + " Amount: " + (double) t.Amount + " Transaction Time: " + ((DateTime) t.TransactionTimeUtc).ToLocalTime();
+                display = display + " Amount: " + t.FormattedAmount + " Transaction Time: " +  t.TransactionTimeUtc.ToLocalTime();
                 if(t.Comment != "" && t.Comment != null)
                     display = display + " Comment: " + t.Comment;
                 Console.WriteLine(display);
@@ -257,7 +266,8 @@ namespace BankingApplication
             // Customer's selected account to do the deposit.
             var account = CustomerAccountSelection();
 
-            Console.WriteLine("Enter the amount you want to deposit");
+            Console.WriteLine("Your balance is: " + account.FormattedBalance);
+            Console.WriteLine("Enter the amount you want to deposit: ");
             decimal amount = 0;
             
             // Not allowing the customer to enter a negative amount and validation to check if input is a number.
@@ -275,10 +285,10 @@ namespace BankingApplication
         {
             var count = 1;
             var selection = 0;
-            
+            Console.WriteLine("Please select an account");
             foreach(var account in customer.Accounts)
             {
-                Console.WriteLine(count + ": " +account.AccountNumber);
+                Console.WriteLine(count + ": " +account.AccountNumber +" Type: "+account.GetType().Name);
                 count++;
             }
             if (!int.TryParse(Console.ReadLine(), out selection) || selection < 1 || selection > customer.Accounts.Count)

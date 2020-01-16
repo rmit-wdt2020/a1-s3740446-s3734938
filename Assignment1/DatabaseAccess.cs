@@ -10,6 +10,7 @@ using Newtonsoft.Json.Converters;
 
 namespace BankingApplication
 {
+    //Class for checking database before running program
     public class DatabaseAccess
     {
         static readonly HttpClient Client = new HttpClient();
@@ -36,16 +37,18 @@ namespace BankingApplication
 
         } 
 
+        //Connection string retrieval from Json.
+        //Referencing Web Development Technologies lectures and tutorials
         private static IConfigurationRoot Configuration { get; } =
             new ConfigurationBuilder().AddJsonFile("appsettings.json").Build(); 
 
         private static string ConnectionString { get; } = Configuration["ConnectionString"];
         private static SqlConnection conn = new SqlConnection (ConnectionString);
-        private SqlDataReader read; 
         
           
-        
-        public int DbChk(string sproc, int? account = null)
+        //Method for checking if DB has been seeded with web service data.
+        //Utilizes CheckDB Sproc
+        public int DbChk(string sproc)
         {
             SqlCommand cmd = new SqlCommand(sproc, conn);
 
@@ -54,13 +57,8 @@ namespace BankingApplication
             //Output Parameter
             cmd.Parameters.Add("@bool", SqlDbType.Bit).Direction = ParameterDirection.Output;
 
-            if (account.HasValue)
-            {
-                cmd.Parameters.AddWithValue("@accountNo", account);
-            }
-
             
-                try
+            try
             {
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -88,8 +86,10 @@ namespace BankingApplication
         }
         
 
+        //Method for seeding database with web service data.
         public async Task GetJson()
         {
+            //Get web services
             var cjson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/customers/");
             var ljson = await Client.GetStringAsync("https://coreteaching01.csit.rmit.edu.au/~e87149/wdt/services/logins/");
 
@@ -102,6 +102,7 @@ namespace BankingApplication
             List<Customer> tmpList = JsonConvert.DeserializeObject<List<Customer>>(cjson, converter, dateTimeConverter);
             List<LoginInfo> ltmpList = JsonConvert.DeserializeObject<List<LoginInfo>>(ljson);
 
+            //Insert customer list into DB
             try
             {
                 conn.Open();
@@ -117,6 +118,8 @@ namespace BankingApplication
                         }
                     }
                 }
+
+                //Insert login info list into database
                 foreach (LoginInfo l in ltmpList)
                 {
                     LoginInfoRepo.Insert(l);

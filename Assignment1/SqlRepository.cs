@@ -8,9 +8,11 @@ namespace BankingApplication
 {
     public abstract class SqlRepository
     {
+        //Connection string retrieval from Json.
+        //Referencing Web Development Technologies lectures and tutorials
         private IConfigurationRoot Configuration { get; } =
             new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-
+        
         protected SqlDataReader read;
         public SqlConnection GetConnection()
         {
