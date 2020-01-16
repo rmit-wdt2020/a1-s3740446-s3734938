@@ -13,6 +13,11 @@ namespace BankingApplication
     public class DatabaseAccess
     {
         static readonly HttpClient Client = new HttpClient();
+
+        //Repository Objects
+        private CustomerRepository CustomerRepo = new CustomerRepository();
+        private AccountRepository AccountRepo = new AccountRepository();
+        private TransactionRepository TransactionRepo = new TransactionRepository();
         private DatabaseAccess()  
         {  
         }  
@@ -36,6 +41,7 @@ namespace BankingApplication
         private static string ConnectionString { get; } = Configuration["ConnectionString"];
         private static SqlConnection conn = new SqlConnection (ConnectionString);
         private SqlDataReader read; 
+        
           
         
         public int DbChk(string sproc, int? account = null)
@@ -104,33 +110,36 @@ namespace BankingApplication
                 conn.Open();
                 foreach (Customer c in tmpList)
                 {
-                    SqlCommand CustCmd = new SqlCommand("INSERT INTO CUSTOMER (CustomerID, Name, Address, City, Postcode)" +
-                                                        " VALUES(@CustomerID, @Name, @Address, @City, @Postcode )", conn);
-                    CustCmd.Parameters.AddWithValue("@CustomerID", c.CustomerId);
-                    CustCmd.Parameters.AddWithValue("@Name", c.Name);
-                    CustCmd.Parameters.AddWithValue("@Address", c.Address);
-                    CustCmd.Parameters.AddWithValue("@City", c.City);
-                    CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
-                    CustCmd.ExecuteNonQuery();
+                    CustomerRepo.Insert(c);
+                    //SqlCommand CustCmd = new SqlCommand("INSERT INTO CUSTOMER (CustomerID, Name, Address, City, Postcode)" +
+                    //                                    " VALUES(@CustomerID, @Name, @Address, @City, @Postcode )", conn);
+                    //CustCmd.Parameters.AddWithValue("@CustomerID", c.CustomerId);
+                    //CustCmd.Parameters.AddWithValue("@Name", c.Name);
+                    //CustCmd.Parameters.AddWithValue("@Address", c.Address);
+                    //CustCmd.Parameters.AddWithValue("@City", c.City);
+                    //CustCmd.Parameters.AddWithValue("@PostCode", c.PostCode);
+                    //CustCmd.ExecuteNonQuery();
                     foreach (Account a in c.Accounts)
                     {
-                        SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
-                                                           " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
-                        AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
-                        AccCmd.Parameters.AddWithValue("@AccountType", a.GetType().Name[0]);
-                        AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
-                        AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
-                        AccCmd.ExecuteNonQuery();
+                        AccountRepo.Insert(a);
+                        //SqlCommand AccCmd = new SqlCommand("INSERT INTO ACCOUNT (AccountNumber, AccountType, CustomerID, Balance)" +
+                        //                                   " VALUES (@AccountNumber, @AccountType, @CustomerID, @Balance)", conn);
+                        //AccCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                        //AccCmd.Parameters.AddWithValue("@AccountType", a.GetType().Name[0]);
+                        //AccCmd.Parameters.AddWithValue("@CustomerID", a.CustomerId);
+                        //AccCmd.Parameters.AddWithValue("@Balance", a.Balance);
+                        //AccCmd.ExecuteNonQuery();
                         foreach(Transaction t in a.Transactions)
                         {
-                            SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
-                                                                " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
-                            TranCmd.Parameters.AddWithValue("@TransactionType", "D");
-                            TranCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
-                            TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", a.AccountNumber);
-                            TranCmd.Parameters.AddWithValue("@Amount", a.Balance);
-                            TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
-                            TranCmd.ExecuteNonQuery();
+                            TransactionRepo.SeedInsert(t, a);
+                            //SqlCommand TranCmd = new SqlCommand("INSERT INTO [TRANSACTION] (TransactionType, AccountNumber, DestinationAccountNumber, Amount, TransactionTimeUtc)" +
+                            //                                    " VALUES (@TransactionType, @AccountNumber, @DestinationAccountNumber, @Amount, @TransactionTimeUtc)", conn);
+                            //TranCmd.Parameters.AddWithValue("@TransactionType", "D");
+                            //TranCmd.Parameters.AddWithValue("@AccountNumber", a.AccountNumber);
+                            //TranCmd.Parameters.AddWithValue("@DestinationAccountNumber", a.AccountNumber);
+                            //TranCmd.Parameters.AddWithValue("@Amount", a.Balance);
+                            //TranCmd.Parameters.AddWithValue("@TransactionTimeUtc", t.TransactionTimeUtc);
+                            //TranCmd.ExecuteNonQuery();
                         }
                     }
                 }

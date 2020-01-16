@@ -9,6 +9,11 @@ namespace BankingApplication
         // Reference to Authrepository class to call login method.
         AuthRepository auth = new AuthRepository();
         Customer customer;
+
+        //Repository objects
+        CustomerRepository CustomerRepo = new CustomerRepository();
+        AccountRepository AccountRepo = new AccountRepository();
+        TransactionRepository TransactionRepo = new TransactionRepository();
         
         // Variable for keeping a tab whether a customer is logged in the system or not.
         bool customerLoggedIn = false;
@@ -19,32 +24,27 @@ namespace BankingApplication
 
         // Initialising customer object with its accounts and transactions.
         public void InitializeCustomer(int customerId){
-            var result = DatabaseAccess.Instance.GetCustomerDetails(customerId);
-            
-            customer = new Customer() {
-                CustomerId = customerId, 
-                Name = result.Item1,
-                City = result.Item2,
-                Address = result.Item3,
-                PostCode = result.Item4
-            };
 
-            var accounts = DatabaseAccess.Instance.GetAccountData(customerId);
+            //Get customer
+            customer = CustomerRepo.SelectById(customerId);
 
-            foreach (var item in accounts) {
-                
-                var transactions = DatabaseAccess.Instance.GetTransactionData(item.AccountNumber);
-                foreach (var transaction in transactions) {
-                        item.Transactions.Add(transaction);
-                    }
-                customer.accounts.Add(item);
+            //Get customer accounts
+            var accounts = AccountRepo.SelectAll(customerId);
+
+            //Add account transactions
+            foreach (var account in accounts) {
+                account.Transactions = TransactionRepo.SelectAll(account.AccountNumber);
             }
+
+            //Add accounts to customer
+            customer.Accounts = accounts;
+
         }
 
         public void PerformLogin()
         {   
             // Clearing the console every time customer logs out or a new customer logs in.
-            Console.Clear();
+            //Console.Clear();
 
             // Taking loginID and password inputs from customer.
             Console.WriteLine("Enter your Login ID");
@@ -114,7 +114,7 @@ namespace BankingApplication
             int.TryParse(Console.ReadLine(), out accountNo);
 
             // The account object in which money would be received.
-            var receiverAccount = DatabaseAccess.Instance.GetAccountDataViaAccountID(accountNo);
+            var receiverAccount = AccountRepo.SelectById(accountNo);
 
             // If the receiver account object is null, it means user entered an account number to send money
             // to which does not exist. Abort transaction with error message.

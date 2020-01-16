@@ -14,6 +14,8 @@ namespace BankingApplication
         private int customerId;      
         private decimal balance;
         private List<Transaction> transactions = new List<Transaction>();
+        private AccountRepository AccountRepo = new AccountRepository();
+        private TransactionRepository TransactionRepo = new TransactionRepository();
         public int AccountNumber
         {
             get { return accountNumber; }
@@ -35,7 +37,7 @@ namespace BankingApplication
         public List<Transaction> Transactions
         {
             get { return transactions; }
-            set { }
+            set { transactions = value; }
         }
 
         public void Withdraw(decimal amount)
@@ -63,7 +65,7 @@ namespace BankingApplication
             }
 
             // Updating the database.
-            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
+            AccountRepo.Update(this);
             GenerateTransaction(amount, Transaction.WithdrawTransaction);
             
         }
@@ -91,10 +93,10 @@ namespace BankingApplication
             };
 
             transactions.Add(transaction);
-            DatabaseAccess.Instance.InsertTransaction(transaction);
+            TransactionRepo.Insert(transaction);
         }
 
-        public void TransferMoney(decimal amount, Account receiverAccount,string comment = "")
+        public void TransferMoney(decimal amount, Account receiverAccount, string comment = "")
         {
             // This code block performs a withdraw with transaction type as transfer.
             if (!(Balance - amount >= minimumBalance))
@@ -114,12 +116,12 @@ namespace BankingApplication
             }
 
             // Update sender account's balance.
-            DatabaseAccess.Instance.UpdateBalance(Balance, AccountNumber);
+            AccountRepo.Update(this);
             GenerateTransaction(amount, Transaction.TransferTransaction,receiverAccount.AccountNumber,comment);
 
             // Update receiver account's balance.
             receiverAccount.Balance = receiverAccount.Balance + amount;
-            DatabaseAccess.Instance.UpdateBalance(receiverAccount.Balance,receiverAccount.AccountNumber);
+            AccountRepo.Update(receiverAccount);
             receiverAccount.GenerateTransaction(amount, Transaction.TransferTransaction,0,comment);
             
         }
