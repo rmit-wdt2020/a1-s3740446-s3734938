@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BankingApplication
 {
+    //LoginInfo Repository containing SQL
     class LoginInfoRepository : SqlRepository, ISqlRepository<LoginInfo>
     {
         public void Insert(LoginInfo l)

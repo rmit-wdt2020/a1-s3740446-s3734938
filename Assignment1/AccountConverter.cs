@@ -5,6 +5,7 @@ using System;
 namespace BankingApplication
 {
     //Custom JsonConverter for handling account types
+    //Converter example modified from https://skrift.io/articles/archive/bulletproof-interface-deserialization-in-jsonnet/
     class AccountConverter : JsonConverter
     {
         public override bool CanWrite => false;

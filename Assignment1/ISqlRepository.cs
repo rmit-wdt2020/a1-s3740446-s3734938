@@ -5,6 +5,7 @@ using System.Text;
 
 namespace BankingApplication
 {
+    //Repository pattern interface for defining typical SQL methods
     interface ISqlRepository<T>
     {
         public void Insert(T entity);

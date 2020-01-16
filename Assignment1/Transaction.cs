@@ -1,6 +1,7 @@
 ﻿using System;
 namespace BankingApplication
 {
+    //Class for defining transaction objects
     public class Transaction
     {
         public const char WithdrawTransaction = 'W';
@@ -57,6 +58,11 @@ namespace BankingApplication
             get { return transactionTimeUtc; }
             set { transactionTimeUtc = value; }
 
+        }
+
+        public string FormattedAmount
+        {
+            get { return string.Format("{0:C}", amount); }
         }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace BankingApplication
 {
-    public class AuthRepository
+    //Class for handling password hashing and authentication
+    public class Authentication
     {
-        public AuthRepository()
+        public Authentication()
         {
         }
 
