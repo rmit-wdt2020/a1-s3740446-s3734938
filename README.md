@@ -5,6 +5,8 @@ Ryan Cassidy - s3740446
 
 Vineet Bugtani - S3734938 
 
+Equal contribution by both assignment partners
+
 Patterns used:
 
 Factory Pattern
